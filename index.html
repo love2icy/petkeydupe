@@ -2,45 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Key Generator with Fingerprint</title>
-  <script src="https://openfpcdn.io/fingerprintjs/v3"></script>
+  <title>Key Generator</title>
 </head>
 <body>
-  <h1>Generate your Key</h1>
+  <h1>Generate Your Key</h1>
   <button id="generateBtn">Generate Key</button>
   <p id="result"></p>
 
   <script>
-    async function generateKey() {
-      const resultEl = document.getElementById('result');
-      resultEl.textContent = 'Generating...';
+    function generateSimpleFingerprint() {
+      const navigatorInfo = window.navigator;
+      const screenInfo = window.screen;
 
-      // Load FingerprintJS and get visitorId (device fingerprint)
-      const fp = await FingerprintJS.load();
-      const result = await fp.get();
-      const deviceId = result.visitorId;
+      const data = [
+        navigatorInfo.userAgent,
+        navigatorInfo.language,
+        navigatorInfo.platform,
+        screenInfo.width,
+        screenInfo.height,
+        screenInfo.colorDepth,
+        new Date().getTimezoneOffset()
+      ].join('###');
 
-      // Send deviceId to backend
-      try {
-        const response = await fetch('https://YOUR_BACKEND_URL/generate-key', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ deviceId })
-        });
-        const data = await response.json();
-
-        if (data.success) {
-          resultEl.textContent = `Your key: ${data.key}`;
-        } else {
-          resultEl.textContent = `Wait before generating new key. Your key: ${data.key}`;
-        }
-      } catch (err) {
-        resultEl.textContent = 'Error connecting to server.';
-        console.error(err);
+      let uuid = localStorage.getItem('device_uuid');
+      if (!uuid) {
+        uuid = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('device_uuid', uuid);
       }
+
+      return btoa(data + '###' + uuid);
     }
 
-    document.getElementById('generateBtn').addEventListener('click', generateKey);
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+      const fp = generateSimpleFingerprint();
+
+      try {
+        const res = await fetch(`https://YOUR_BACKEND_URL_HERE/generate-key?fp=${encodeURIComponent(fp)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById('result').innerText = `Your key: ${data.key}`;
+        } else {
+          document.getElementById('result').innerText = `Error: ${data.message}`;
+        }
+      } catch (err) {
+        document.getElementById('result').innerText = `Network error: ${err.message}`;
+      }
+    });
   </script>
 </body>
 </html>
