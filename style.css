@@ -8,24 +8,24 @@
   pointer-events: none;
 }
 #generate-btn {
+  position: relative;
+  overflow: hidden;
   background: transparent;
   border: 2px solid #fff;
-  color: #fff;
   padding: 15px 40px;
   font-size: 1.2rem;
   font-weight: 600;
+  color: #fff;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(5px); /* Optional for glassy effect */
+  box-shadow: none;
+  transition: transform 0.2s ease, background 0.3s ease, color 0.3s ease;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.8s 0.4s both;
+  backdrop-filter: blur(5px);
 }
-
 #generate-btn:hover {
-  background: rgba(255, 255, 255, 0.1); /* Light hover effect */
+  background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
-}
-
-#generate-btn:active {
-  transform: translateY(0);
 }
 
