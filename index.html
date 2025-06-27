@@ -48,7 +48,9 @@
       width: 100%;
       left: 0;
       text-align: center;
-      z-index: 1;
+      z-index: 10;
+      animation: fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+      will-change: transform, opacity;
     }
 
     .header h1 {
@@ -56,16 +58,12 @@
       font-weight: 700;
       text-shadow: 0 0 8px rgba(0,0,0,0.3);
       margin-bottom: 0.3rem;
-      animation: fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-      animation-delay: 0.1s;
     }
 
     .header h2 {
       font-size: 1.8rem;
       font-weight: 500;
       text-shadow: 0 0 6px rgba(0,0,0,0.3);
-      animation: fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-      animation-delay: 0.3s;
       margin-bottom: 2rem;
     }
 
@@ -84,10 +82,10 @@
       cursor: pointer;
       transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
       animation: fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-      animation-delay: 0.5s;
+      will-change: transform, opacity;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
-      z-index: 1;
+      z-index: 10;
     }
 
     #generate-btn:hover:not(:disabled) {
@@ -96,9 +94,15 @@
       box-shadow: 0 0 14px #fff, 0 0 30px #fff;
     }
 
+    #generate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
     #result {
       position: fixed;
-      top: 63%;
+      top: calc(50% + 80px);
       left: 50%;
       transform: translateX(-50%);
       background: rgba(255, 255, 255, 0.15);
@@ -114,8 +118,9 @@
       white-space: pre-line;
       opacity: 0;
       animation: fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-      animation-delay: 0.7s;
-      z-index: 1;
+      animation-fill-mode: forwards;
+      will-change: transform, opacity;
+      z-index: 10;
     }
 
     .footer {
@@ -126,9 +131,9 @@
       position: fixed;
       bottom: 20px;
       width: 100%;
-      z-index: 1;
+      z-index: 10;
       animation: fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-      animation-delay: 0.9s;
+      will-change: transform, opacity;
     }
 
     /* Responsive */
@@ -159,6 +164,8 @@
 
   <script>
     const btn = document.getElementById('generate-btn');
+    const resultEl = document.getElementById('result');
+
     btn.addEventListener('click', () => generateKey());
 
     function getDeviceId() {
@@ -171,10 +178,6 @@
     }
 
     async function generateKey() {
-      const deviceId = getDeviceId();
-      const resultEl = document.getElementById('result');
-
-      // Disable button after first key generation
       if(btn.disabled) return;
       btn.disabled = true;
 
@@ -182,6 +185,7 @@
       resultEl.textContent = 'Generating...';
 
       try {
+        const deviceId = getDeviceId();
         const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
         const data = await res.json();
         resultEl.textContent = data.success
@@ -191,9 +195,9 @@
         resultEl.textContent = 'Network error or backend unreachable';
       }
 
-      resultEl.style.animation = 'none';
-      void resultEl.offsetWidth;
-      resultEl.style.animation = 'fadeInUpSmooth 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards';
+      // Fade in result smoothly
+      resultEl.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+      resultEl.style.transform = 'translateX(-50%) translateY(0)';
       resultEl.style.opacity = 1;
     }
   </script>
