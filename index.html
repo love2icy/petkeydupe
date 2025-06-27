@@ -37,7 +37,7 @@
       const fp = generateSimpleFingerprint();
 
       try {
-        const res = await fetch(`https://YOUR_BACKEND_URL_HERE/generate-key?fp=${encodeURIComponent(fp)}`);
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?fp=${encodeURIComponent(fp)}`);
         const data = await res.json();
 
         if (data.success) {
