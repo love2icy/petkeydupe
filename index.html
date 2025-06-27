@@ -2,14 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Key Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+
+    #generate-btn {
+      background-color: #ff7e5f;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255,126,95,0.7);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-bottom: 1.5rem;
+      user-select: none;
+    }
+
+    #generate-btn:hover {
+      background-color: #eb6841;
+      transform: scale(1.05);
+    }
+
+    #result {
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 320px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      word-break: break-word;
+      min-height: 60px;
+      user-select: text;
+    }
+
+    @media (max-width: 400px) {
+      #generate-btn {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px;
+      }
+
+      #result {
+        max-width: 100%;
+        font-size: 1rem;
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <h1>Key Generator</h1>
   <button id="generate-btn">Generate Key</button>
-  <p id="result"></p>
+  <div id="result"></div>
 
   <script>
-    // Simple stable device id stored in localStorage
     function getDeviceId() {
       let id = localStorage.getItem('deviceId');
       if (!id) {
@@ -21,12 +88,20 @@
 
     document.getElementById('generate-btn').addEventListener('click', async () => {
       const deviceId = getDeviceId();
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = 'Generating...';
+
       try {
         const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
         const data = await res.json();
-        document.getElementById('result').innerText = data.message + (data.key ? ` Key: ${data.key}` : '');
+
+        if (data.success) {
+          resultEl.textContent = `${data.message} ${data.key ? 'Key: ' + data.key : ''}`;
+        } else {
+          resultEl.textContent = `Error: ${data.message || 'Unknown error'}`;
+        }
       } catch (e) {
-        document.getElementById('result').innerText = 'Error fetching key';
+        resultEl.textContent = 'Network error or backend unreachable';
       }
     });
   </script>
