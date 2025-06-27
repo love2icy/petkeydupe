@@ -6,18 +6,17 @@
   <title>Echo Scripts Key Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    /* Reset & base */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: 'Poppins', sans-serif;
       background: #000;
       color: #fff;
-      min-height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      place-items: center;
-      padding: 20px;
-      text-align: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
     /* Background Video */
@@ -31,27 +30,39 @@
       pointer-events: none;
     }
 
-    /* Header */
+    /* Layout */
+    .container {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
     .header {
+      position: absolute;
+      top: 40px;
       animation: fadeInDown 0.8s ease-out both;
     }
+
     h1 {
       font-size: 3rem;
       font-weight: 700;
       text-shadow: 0 0 8px rgba(0,0,0,0.3);
       margin-bottom: 0.3rem;
     }
+
     h2 {
       font-size: 1.8rem;
       font-weight: 500;
       text-shadow: 0 0 6px rgba(0,0,0,0.3);
-      margin-bottom: 2rem;
       animation: fadeInDown 0.8s 0.2s both;
     }
 
-    /* Glowing Transparent Button */
     #generate-btn {
-      position: relative;
       background: transparent;
       border: 2px solid #fff;
       color: #fff;
@@ -61,21 +72,22 @@
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-bottom: 2rem;
+      margin-top: 60px;
       animation: fadeIn 0.8s 0.4s both;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
     }
+
     #generate-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       transform: translateY(-2px);
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
+
     #generate-btn:active {
       transform: translateY(0);
     }
 
-    /* Result box */
     #result {
       background: rgba(255, 255, 255, 0.15);
       padding: 20px;
@@ -88,31 +100,32 @@
       min-height: 60px;
       user-select: text;
       opacity: 0;
+      margin-top: 20px;
       animation: fadeIn 0.5s 1s forwards;
     }
 
-    /* Footer */
     .footer {
+      position: absolute;
+      bottom: 20px;
       font-size: 0.9rem;
       color: #ddd;
-      margin-top: 3rem;
       animation: fadeInUp 0.8s 1.2s both;
     }
 
-    /* Animations */
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     @keyframes fadeIn {
       to { opacity: 1; }
     }
 
-    /* Responsive */
     @media (max-width: 400px) {
       h1 { font-size: 2.5rem; }
       h2 { font-size: 1.5rem; }
@@ -123,27 +136,24 @@
 </head>
 <body>
 
-  <!-- Video Background -->
-<video id="bg-video" autoplay muted loop playsinline>
-  <source src="assets/bg.mp4" type="video/mp4" />
-</video>
+  <!-- Background Video -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="assets/bg.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
 
-<div class="overlay"></div>
+  <!-- Content -->
+  <div class="container">
+    <div class="header">
+      <h1>Pet Duper</h1>
+      <h2>Echo Scripts Key Generator</h2>
+    </div>
 
-<div class="content-wrapper">
-  <!-- all your page content -->
-</div>
+    <button id="generate-btn">Generate Key</button>
+    <div id="result"></div>
 
-
-  <div class="header">
-    <h1>Pet Duper</h1>
-    <h2>Echo Scripts Key Generator</h2>
+    <div class="footer">made by: Echo Scripts</div>
   </div>
-
-  <button id="generate-btn">Generate Key</button>
-  <div id="result"></div>
-
-  <div class="footer">made by: Echo Scripts</div>
 
   <script>
     const btn = document.getElementById('generate-btn');
