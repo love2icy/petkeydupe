@@ -5,48 +5,28 @@
   <title>Key Generator</title>
 </head>
 <body>
-  <h1>Generate Your Key</h1>
-  <button id="generateBtn">Generate Key</button>
+  <button id="generate-btn">Generate Key</button>
   <p id="result"></p>
 
   <script>
-    function generateSimpleFingerprint() {
-      const navigatorInfo = window.navigator;
-      const screenInfo = window.screen;
-
-      const data = [
-        navigatorInfo.userAgent,
-        navigatorInfo.language,
-        navigatorInfo.platform,
-        screenInfo.width,
-        screenInfo.height,
-        screenInfo.colorDepth,
-        new Date().getTimezoneOffset()
-      ].join('###');
-
-      let uuid = localStorage.getItem('device_uuid');
-      if (!uuid) {
-        uuid = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem('device_uuid', uuid);
+    // Simple stable device id stored in localStorage
+    function getDeviceId() {
+      let id = localStorage.getItem('deviceId');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('deviceId', id);
       }
-
-      return btoa(data + '###' + uuid);
+      return id;
     }
 
-    document.getElementById('generateBtn').addEventListener('click', async () => {
-      const fp = generateSimpleFingerprint();
-
+    document.getElementById('generate-btn').addEventListener('click', async () => {
+      const deviceId = getDeviceId();
       try {
-        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?fp=${encodeURIComponent(fp)}`);
+        const res = await fetch(`https://your-render-backend-url.onrender.com/generate-key?deviceId=${deviceId}`);
         const data = await res.json();
-
-        if (data.success) {
-          document.getElementById('result').innerText = `Your key: ${data.key}`;
-        } else {
-          document.getElementById('result').innerText = `Error: ${data.message}`;
-        }
-      } catch (err) {
-        document.getElementById('result').innerText = `Network error: ${err.message}`;
+        document.getElementById('result').innerText = data.message + (data.key ? ` Key: ${data.key}` : '');
+      } catch (e) {
+        document.getElementById('result').innerText = 'Error fetching key';
       }
     });
   </script>
