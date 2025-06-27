@@ -19,7 +19,6 @@
       overflow: hidden;
     }
 
-    /* Background Video */
     #bg-video {
       position: fixed;
       top: 0; left: 0;
@@ -30,7 +29,6 @@
       pointer-events: none;
     }
 
-    /* Layout */
     .container {
       position: relative;
       height: 100vh;
@@ -38,7 +36,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       text-align: center;
     }
 
@@ -63,6 +61,9 @@
     }
 
     #generate-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       background: transparent;
       border: 2px solid #fff;
       color: #fff;
@@ -72,7 +73,6 @@
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-top: 60px;
       animation: fadeIn 0.8s 0.4s both;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
@@ -80,15 +80,13 @@
 
     #generate-btn:hover {
       background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
+      transform: translateY(-52%);
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
-    #generate-btn:active {
-      transform: translateY(0);
-    }
-
     #result {
+      position: absolute;
+      top: 63%;
       background: rgba(255, 255, 255, 0.15);
       padding: 20px;
       border-radius: 15px;
@@ -100,8 +98,17 @@
       min-height: 60px;
       user-select: text;
       opacity: 0;
-      margin-top: 20px;
       animation: fadeIn 0.5s 1s forwards;
+    }
+
+    #timer {
+      position: absolute;
+      top: 73%;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 0 6px rgba(255,255,255,0.3);
+      animation: fadeIn 0.5s 1.2s forwards;
     }
 
     .footer {
@@ -129,8 +136,8 @@
     @media (max-width: 400px) {
       h1 { font-size: 2.5rem; }
       h2 { font-size: 1.5rem; }
-      #generate-btn { width: 100%; padding: 12px; font-size: 1rem; }
-      #result { max-width: 100%; font-size: 1rem; padding: 15px; }
+      #generate-btn { padding: 12px; font-size: 1rem; }
+      #result { max-width: 90%; font-size: 1rem; padding: 15px; }
     }
   </style>
 </head>
@@ -142,7 +149,6 @@
     Your browser does not support the video tag.
   </video>
 
-  <!-- Content -->
   <div class="container">
     <div class="header">
       <h1>Pet Duper</h1>
@@ -150,7 +156,9 @@
     </div>
 
     <button id="generate-btn">Generate Key</button>
+
     <div id="result"></div>
+    <div id="timer">00:00:00</div>
 
     <div class="footer">made by: Echo Scripts</div>
   </div>
@@ -180,6 +188,8 @@
         resultEl.textContent = data.success
           ? `${data.message} Key: ${data.key}`
           : `Error: ${data.message}`;
+
+        startTimer(7200); // Start 2-hour countdown
       } catch {
         resultEl.textContent = 'Network error or backend unreachable';
       }
@@ -187,6 +197,24 @@
       resultEl.style.animation = 'none';
       void resultEl.offsetWidth;
       resultEl.style.animation = 'fadeIn 0.5s forwards';
+    }
+
+    function startTimer(seconds) {
+      const timerEl = document.getElementById('timer');
+      let remaining = seconds;
+
+      function update() {
+        const h = String(Math.floor(remaining / 3600)).padStart(2, '0');
+        const m = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+        const s = String(remaining % 60).padStart(2, '0');
+        timerEl.textContent = `${h}:${m}:${s}`;
+        if (remaining > 0) {
+          remaining--;
+          setTimeout(update, 1000);
+        }
+      }
+
+      update();
     }
   </script>
 </body>
