@@ -10,7 +10,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: url('/mnt/data/c43858d1-c5ae-4090-913c-1d2a32c08f3e.png') no-repeat center center fixed;
+      background-size: cover;
       color: #fff;
       min-height: 100vh;
       display: grid;
@@ -62,7 +63,6 @@
     #generate-btn:active {
       transform: translateY(0);
     }
-    /* Ripple effect */
     #generate-btn::after {
       content: "";
       position: absolute;
@@ -141,7 +141,6 @@
   <div class="footer">made by: Echo Scripts</div>
 
   <script>
-    // Ripple effect handler
     const btn = document.getElementById('generate-btn');
     btn.addEventListener('click', e => {
       const rect = btn.getBoundingClientRect();
@@ -178,12 +177,11 @@
       } catch {
         resultEl.textContent = 'Network error or backend unreachable';
       }
-      // Trigger fade-in
+
       resultEl.style.animation = 'none';
       void resultEl.offsetWidth;
       resultEl.style.animation = 'fadeIn 0.5s forwards';
     }
   </script>
-
 </body>
 </html>
