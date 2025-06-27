@@ -1,28 +1,32 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const KEYS_FILE = path.join(__dirname, 'keys.txt');
 
 app.use(cors());
+app.use(express.json()); // to parse JSON bodies
 
-const userAccessLog = {};
+// Track keys generated per deviceId
+const deviceAccessLog = {};
 const TIME_WINDOW_MS = 5 * 60 * 60 * 1000; // 5 hours
 
-app.get('/generate-key', (req, res) => {
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+app.post('/generate-key', (req, res) => {
+  const { deviceId } = req.body;
+  if (!deviceId) {
+    return res.status(400).json({ success: false, message: 'deviceId required' });
+  }
+
   const now = Date.now();
 
-  if (userAccessLog[ip] && now - userAccessLog[ip].timestamp < TIME_WINDOW_MS) {
+  if (deviceAccessLog[deviceId] && now - deviceAccessLog[deviceId].timestamp < TIME_WINDOW_MS) {
     return res.status(429).json({
       success: false,
-      message: `You already generated a key. Try again in ${(TIME_WINDOW_MS - (now - userAccessLog[ip].timestamp)) / 3600000} hours.`,
-      key: userAccessLog[ip].key
+      message: `Key already generated. Try again in ${((TIME_WINDOW_MS - (now - deviceAccessLog[deviceId].timestamp)) / 3600000).toFixed(2)} hours.`,
+      key: deviceAccessLog[deviceId].key,
     });
   }
 
@@ -33,7 +37,7 @@ app.get('/generate-key', (req, res) => {
     const keys = data.split('\n').filter(Boolean);
     const key = keys[Math.floor(Math.random() * keys.length)];
 
-    userAccessLog[ip] = { timestamp: now, key };
+    deviceAccessLog[deviceId] = { timestamp: now, key };
 
     res.json({ success: true, key });
   });
