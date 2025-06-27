@@ -78,7 +78,15 @@
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
     }
 
-    #generate-btn:hover {
+    #generate-btn:disabled {
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: rgba(255,255,255,0.05);
+    }
+
+    #generate-btn:hover:not(:disabled) {
       background: rgba(255, 255, 255, 0.1);
       transform: translateY(-52%);
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
@@ -99,16 +107,7 @@
       user-select: text;
       opacity: 0;
       animation: fadeIn 0.5s 1s forwards;
-    }
-
-    #timer {
-      position: absolute;
-      top: 73%;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #fff;
-      text-shadow: 0 0 6px rgba(255,255,255,0.3);
-      animation: fadeIn 0.5s 1.2s forwards;
+      white-space: pre-line;
     }
 
     .footer {
@@ -158,15 +157,19 @@
     <button id="generate-btn">Generate Key</button>
 
     <div id="result"></div>
-    <div id="timer">00:00:00</div>
 
     <div class="footer">made by: Echo Scripts</div>
   </div>
 
   <script>
     const btn = document.getElementById('generate-btn');
+    const resultEl = document.getElementById('result');
+    const STORAGE_KEY = 'petDuperKeyData';
+    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours in seconds
+
     btn.addEventListener('click', () => generateKey());
 
+    // Generate or get device ID
     function getDeviceId() {
       let id = localStorage.getItem('deviceId');
       if (!id) {
@@ -176,45 +179,99 @@
       return id;
     }
 
-    async function generateKey() {
-      const deviceId = getDeviceId();
-      const resultEl = document.getElementById('result');
-      resultEl.style.opacity = 0;
-      resultEl.textContent = 'Generating...';
-
+    // Load saved key & timer info from localStorage
+    function loadSavedData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return null;
       try {
-        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
-        const data = await res.json();
-        resultEl.textContent = data.success
-          ? `${data.message} Key: ${data.key}`
-          : `Error: ${data.message}`;
-
-        startTimer(7200); // Start 2-hour countdown
+        return JSON.parse(saved);
       } catch {
-        resultEl.textContent = 'Network error or backend unreachable';
+        return null;
       }
-
-      resultEl.style.animation = 'none';
-      void resultEl.offsetWidth;
-      resultEl.style.animation = 'fadeIn 0.5s forwards';
     }
 
-    function startTimer(seconds) {
-      const timerEl = document.getElementById('timer');
-      let remaining = seconds;
+    // Save key & expiry timestamp to localStorage
+    function saveKeyData(key, expiryTimestamp) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        key,
+        expiryTimestamp
+      }));
+    }
 
+    // Disable the generate button
+    function disableButton() {
+      btn.disabled = true;
+      btn.textContent = "Key Generated";
+    }
+
+    // Format seconds to HH:MM:SS
+    function formatTime(seconds) {
+      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    // Countdown timer function updating the #result text
+    function startCountdown(expiryTimestamp, key) {
       function update() {
-        const h = String(Math.floor(remaining / 3600)).padStart(2, '0');
-        const m = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
-        const s = String(remaining % 60).padStart(2, '0');
-        timerEl.textContent = `${h}:${m}:${s}`;
-        if (remaining > 0) {
-          remaining--;
-          setTimeout(update, 1000);
+        const now = Date.now();
+        let diffSeconds = Math.floor((expiryTimestamp - now) / 1000);
+
+        if (diffSeconds < 0) diffSeconds = 0;
+
+        resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
+        resultEl.style.opacity = 1;
+
+        if (diffSeconds > 0) {
+          requestAnimationFrame(update);
+        } else {
+          // Timer finished: optionally enable button again or keep disabled
+          // Here we keep disabled to prevent regeneration
+          // You can add code here if you want to allow new generation after expiry
         }
       }
-
       update();
+    }
+
+    // On page load, check if key + timer exists and restore UI state
+    window.onload = () => {
+      const data = loadSavedData();
+      if (data && data.key && data.expiryTimestamp) {
+        disableButton();
+        startCountdown(data.expiryTimestamp, data.key);
+      }
+    };
+
+    // Generate key via backend
+    async function generateKey() {
+      if (btn.disabled) return; // safety check
+
+      btn.textContent = 'Generating...';
+
+      try {
+        const deviceId = getDeviceId();
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
+        const data = await res.json();
+
+        if (data.success && data.key) {
+          disableButton();
+
+          // Calculate expiry timestamp 5 hours from now
+          const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
+          saveKeyData(data.key, expiryTimestamp);
+
+          startCountdown(expiryTimestamp, data.key);
+        } else {
+          resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
+          resultEl.style.opacity = 1;
+          btn.textContent = 'Generate Key';
+        }
+      } catch {
+        resultEl.textContent = 'Network error or backend unreachable';
+        resultEl.style.opacity = 1;
+        btn.textContent = 'Generate Key';
+      }
     }
   </script>
 </body>
