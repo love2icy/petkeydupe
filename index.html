@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Random Key Generator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #eee;
+    text-align: center;
+    padding: 2rem;
+  }
+  #key {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: #222;
+    padding: 1rem;
+    border-radius: 8px;
+    min-width: 250px;
+    display: inline-block;
+    user-select: all;
+    word-break: break-word;
+  }
+  button {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background: #007bff;
+    color: white;
+  }
+  button:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+  #cooldownMsg {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: #ccc;
+  }
+</style>
+</head>
+<body>
+  <h1>Random Key Generator with 5-Hour Cooldown</h1>
+  <button id="generateBtn">Get Your Key</button>
+  <div id="key">Click the button to get a key</div>
+  <div id="cooldownMsg"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
