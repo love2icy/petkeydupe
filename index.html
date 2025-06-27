@@ -22,7 +22,7 @@
     document.getElementById('generate-btn').addEventListener('click', async () => {
       const deviceId = getDeviceId();
       try {
-        const res = await fetch(`https://your-render-backend-url.onrender.com/generate-key?deviceId=${deviceId}`);
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
         const data = await res.json();
         document.getElementById('result').innerText = data.message + (data.key ? ` Key: ${data.key}` : '');
       } catch (e) {
