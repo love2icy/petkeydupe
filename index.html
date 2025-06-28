@@ -89,13 +89,6 @@
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
-    #result,
-    #copy-btn {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
-
     #result {
       position: fixed;
       top: 55%;
@@ -117,6 +110,10 @@
       backdrop-filter: blur(5px);
       text-align: center;
       z-index: 1;
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
     }
 
     #copy-btn {
@@ -138,6 +135,10 @@
       user-select: none;
       margin-top: 15px;
       z-index: 1;
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
     }
 
     #copy-btn:disabled {
@@ -178,18 +179,10 @@
     @keyframes fadeIn {
       to { opacity: 1; }
     }
-
-    @media (max-width: 400px) {
-      h1 { font-size: 2.5rem; }
-      h2 { font-size: 1.5rem; }
-      #generate-btn, #copy-btn { padding: 12px; font-size: 1rem; }
-      #result { font-size: 1rem; padding: 15px; }
-    }
   </style>
 </head>
 <body>
 
-  <!-- Background Video -->
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="assets/bg.mp4" type="video/mp4" />
     Your browser does not support the video tag.
@@ -215,12 +208,11 @@
     const copyBtn = document.getElementById('copy-btn');
     const resultEl = document.getElementById('result');
     const STORAGE_KEY = 'petDuperKeyData';
-    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours in seconds
+    const TIMER_DURATION_SEC = 5 * 60 * 60;
 
     btn.addEventListener('click', () => generateKey());
     copyBtn.addEventListener('click', () => copyKey());
 
-    // Generate or get device ID
     function getDeviceId() {
       let id = localStorage.getItem('deviceId');
       if (!id) {
@@ -230,7 +222,6 @@
       return id;
     }
 
-    // Load saved key & timer info from localStorage
     function loadSavedData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return null;
@@ -241,21 +232,15 @@
       }
     }
 
-    // Save key & expiry timestamp to localStorage
     function saveKeyData(key, expiryTimestamp) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        key,
-        expiryTimestamp
-      }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ key, expiryTimestamp }));
     }
 
-    // Disable the generate button
     function disableButton() {
       btn.disabled = true;
       btn.textContent = "Key Generated";
     }
 
-    // Format seconds to HH:MM:SS
     function formatTime(seconds) {
       const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
       const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
@@ -263,21 +248,16 @@
       return `${h}:${m}:${s}`;
     }
 
-    // Show result and copy button, with optional fade-in animation
     function showResultAndCopy(withAnimation = false) {
+      resultEl.style.display = 'block';
+      copyBtn.style.display = 'inline-block';
+
       if (withAnimation) {
-        // Fade in with transition
-        // Ensure starting opacity 0 before triggering transition
         resultEl.style.opacity = '0';
-        resultEl.style.pointerEvents = 'none';
         copyBtn.style.opacity = '0';
+        resultEl.style.pointerEvents = 'none';
         copyBtn.style.pointerEvents = 'none';
 
-        // Force reflow to restart CSS transition
-        void resultEl.offsetWidth;
-        void copyBtn.offsetWidth;
-
-        // Trigger fade in by setting opacity to 1
         requestAnimationFrame(() => {
           resultEl.style.opacity = '1';
           resultEl.style.pointerEvents = 'auto';
@@ -285,74 +265,41 @@
           copyBtn.style.pointerEvents = 'auto';
         });
       } else {
-        // Show immediately (no fade)
-        resultEl.style.transition = 'none';
-        copyBtn.style.transition = 'none';
-
         resultEl.style.opacity = '1';
         resultEl.style.pointerEvents = 'auto';
         copyBtn.style.opacity = '1';
         copyBtn.style.pointerEvents = 'auto';
-
-        // Restore transition
-        setTimeout(() => {
-          resultEl.style.transition = '';
-          copyBtn.style.transition = '';
-        }, 10);
       }
     }
 
-    // Countdown timer function updating the #result text
     function startCountdown(expiryTimestamp, key) {
       function update() {
         const now = Date.now();
         let diffSeconds = Math.floor((expiryTimestamp - now) / 1000);
-
         if (diffSeconds < 0) diffSeconds = 0;
 
         resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
-        showResultAndCopy(false); // Ensure visible (no animation during countdown)
         copyBtn.disabled = false;
+        showResultAndCopy(true);
 
         if (diffSeconds > 0) {
           requestAnimationFrame(update);
-        } else {
-          // Key expired: re-enable generate button and hide result/copy again
-          btn.disabled = false;
-          btn.textContent = "Generate Key";
-
-          // Hide result and copy btn after expiry
-          resultEl.style.opacity = '0';
-          resultEl.style.pointerEvents = 'none';
-          copyBtn.style.opacity = '0';
-          copyBtn.style.pointerEvents = 'none';
-
-          copyBtn.disabled = true;
-          localStorage.removeItem(STORAGE_KEY);
         }
       }
       update();
     }
 
-    // On page load, check if key + timer exists and restore UI state
     window.onload = () => {
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
+        showResultAndCopy(false);
         startCountdown(data.expiryTimestamp, data.key);
-      } else {
-        // Ensure result and copy btn are hidden initially
-        resultEl.style.opacity = '0';
-        resultEl.style.pointerEvents = 'none';
-        copyBtn.style.opacity = '0';
-        copyBtn.style.pointerEvents = 'none';
-        copyBtn.disabled = true;
       }
     };
 
-    // Generate key via backend
     async function generateKey() {
-      if (btn.disabled) return; // safety check
+      if (btn.disabled) return;
 
       btn.textContent = 'Generating...';
 
@@ -363,14 +310,8 @@
 
         if (data.success && data.key) {
           disableButton();
-
-          // Calculate expiry timestamp 5 hours from now
           const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
           saveKeyData(data.key, expiryTimestamp);
-
-          // Fade in result and copy btn
-          showResultAndCopy(true);
-
           startCountdown(expiryTimestamp, data.key);
         } else {
           resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
@@ -386,7 +327,6 @@
       }
     }
 
-    // Copy the key to clipboard (extract key from resultEl text)
     function copyKey() {
       const text = resultEl.textContent || '';
       const lines = text.split('\n');
