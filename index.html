@@ -9,11 +9,10 @@
     * { box-sizing: border-box; margin:0; padding:0 }
     html, body { height:100% }
     body {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
       background:#000; color:#fff;
       font-family:'Poppins',sans-serif;
-      overflow:hidden;
+      position: relative;
+      overflow: hidden;
     }
     #bg-video {
       position: fixed; top:0; left:0;
@@ -32,63 +31,75 @@
       animation:fadeInDown 1.2s .3s both;
     }
 
-    .main {
-      display:grid;
-      grid-template-rows:1fr auto auto auto 1fr;
-      justify-items:center; row-gap:1rem;
-    }
-
-    button {
-      background:transparent; border:2px solid #fff;
-      color:#fff; padding:15px 40px;
+    /* Generate button fixed at center */
+    #generate-btn {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background:transparent;
+      border:2px solid #fff;
+      color:#fff;
+      padding:15px 40px;
       font-size:1.2rem; font-weight:600;
-      border-radius:50px; cursor:pointer;
+      border-radius:50px;
+      cursor:pointer;
       backdrop-filter:blur(5px);
       box-shadow:0 0 8px rgba(255,255,255,0.2),0 0 15px rgba(255,255,255,0.1);
-      opacity:0; transform:translateY(20px);
-      transition:all .3s ease;
+      animation:fadeInSlideUp 1.2s 1s both;
     }
-    button:disabled {
+    #generate-btn:disabled {
       border-color:#666; color:#666;
       background:rgba(255,255,255,0.05);
       cursor:not-allowed; box-shadow:none;
     }
-    button:hover:not(:disabled) {
+    #generate-btn:hover:not(:disabled) {
       background:rgba(255,255,255,0.1);
-      transform:translateY(-2px);
+      transform: translate(-50%, -52%);
       box-shadow:0 0 12px #fff,0 0 20px #fff;
     }
-    #generate-btn {
-      grid-row:2;
-      animation:fadeInSlideUp 1.2s 1s both;
-    }
 
+    /* Result box below button */
     #result {
-      grid-row:3;
-      display:none;
-      width:90%; max-width:460px;
+      position: absolute;
+      top: calc(50% + 60px); /* 60px below center to clear the button */
+      left: 50%; transform: translateX(-50%);
+      display: none;
+      width: 90%; max-width:460px;
       background:rgba(255,255,255,0.15);
       border-radius:15px; padding:20px;
       font-size:1.1rem; font-weight:500;
       box-shadow:0 0 10px rgba(0,0,0,0.2);
-      white-space:nowrap; /* ensure single line per div */
-      overflow-x:auto;
-    }
-    #result.show {
-      display:block;
+      white-space: nowrap;
+      min-height: 4rem; /* two lines */
       animation:fadeInSlideUp 1.2s 1.6s both;
     }
 
+    /* Copy button directly under result box */
     #copy-btn {
-      grid-row:4;
-      display:none;
+      position: absolute;
+      top: calc(50% + 60px + 4rem + 10px); /* result top + min-height + 10px gap */
+      left: 50%; transform: translateX(-50%);
+      display: none;
+      background:transparent;
+      border:2px solid #fff;
+      color:#fff;
+      padding:15px 40px;
+      font-size:1.2rem; font-weight:600;
+      border-radius:50px;
+      cursor:pointer;
+      backdrop-filter:blur(5px);
+      box-shadow:0 0 8px rgba(255,255,255,0.2),0 0 15px rgba(255,255,255,0.1);
       animation:fadeInSlideUp 1.2s 2.2s both;
     }
-    #copy-btn.show { display:block }
+    #copy-btn:hover {
+      background:rgba(255,255,255,0.1);
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow:0 0 12px #fff,0 0 20px #fff;
+    }
 
     .footer {
-      text-align:center; padding-bottom:5vh;
-      font-size:.9rem; color:#ddd;
+      position:absolute; bottom:5vh; width:100%;
+      text-align:center; font-size:.9rem; color:#ddd;
       animation:fadeInUp .8s 2.5s both;
     }
 
@@ -107,8 +118,8 @@
 
     @media (max-width:400px) {
       h1{font-size:2.5rem} h2{font-size:1.5rem}
-      button{padding:12px;font-size:1rem}
-      #result{padding:15px;font-size:1rem}
+      #generate-btn,#copy-btn{padding:12px;font-size:1rem}
+      #result{padding:15px;font-size:1rem;min-height:3.5rem}
     }
   </style>
 </head>
@@ -122,13 +133,9 @@
     <h2>Echo Scripts Key Generator</h2>
   </div>
 
-  <div class="main">
-    <!-- spacer -->
-    <button id="generate-btn">Generate Key</button>
-    <div id="result"></div>
-    <button id="copy-btn">Copy Key</button>
-    <!-- spacer -->
-  </div>
+  <button id="generate-btn">Generate Key</button>
+  <div id="result"></div>
+  <button id="copy-btn">Copy Key</button>
 
   <div class="footer">made by: Echo Scripts</div>
 
@@ -164,12 +171,11 @@
       btn.disabled = true;
       btn.textContent = 'Key Generated';
     }
-
     function enableGen() {
       btn.disabled = false;
       btn.textContent = 'Generate Key';
-      copyBtn.classList.remove('show');
-      result.classList.remove('show');
+      result.style.display = 'none';
+      copyBtn.style.display = 'none';
     }
 
     function fmt(sec) {
@@ -181,36 +187,34 @@
 
     function renderResult(key, time) {
       result.innerHTML = `<div>Your Key: ${key}</div><div>Expires in: ${time}</div>`;
-      result.classList.add('show');
+      result.style.display = 'block';
     }
 
     function startCountdown(expiry, key) {
       function tick() {
         const now = Date.now();
-        const d   = Math.floor((expiry - now)/1000);
-        if (d <= 0) {
-          renderResult(key,'00:00:00');
+        const diff = Math.floor((expiry - now)/1000);
+        if (diff <= 0) {
+          renderResult(key, '00:00:00');
           enableGen();
           return;
         }
-        renderResult(key, fmt(d));
+        renderResult(key, fmt(diff));
         requestAnimationFrame(tick);
       }
       tick();
     }
 
     function showCopy() {
-      copyBtn.classList.add('show');
+      copyBtn.style.display = 'block';
     }
 
     window.addEventListener('load', () => {
       const data = loadData();
-      if (data && data.key && data.expiry) {
-        if (Date.now() < data.expiry) {
-          disableGen();
-          startCountdown(data.expiry, data.key);
-          showCopy();
-        }
+      if (data && data.key && data.expiry && Date.now() < data.expiry) {
+        disableGen();
+        startCountdown(data.expiry, data.key);
+        showCopy();
       }
     });
 
@@ -223,10 +227,10 @@
         );
         const js = await res.json();
         if (js.success && js.key) {
-          const exp = Date.now() + EXP_MS;
-          saveData(js.key, exp);
+          const expiry = Date.now() + EXP_MS;
+          saveData(js.key, expiry);
           disableGen();
-          startCountdown(exp, js.key);
+          startCountdown(expiry, js.key);
           showCopy();
         } else {
           renderResult(`Error: ${js.message||'Generation failed'}`, '');
@@ -240,8 +244,8 @@
       const m = result.textContent.match(/[A-Za-z0-9]{30}/);
       if (m) {
         navigator.clipboard.writeText(m[0]).then(() => {
-          copyBtn.textContent='Copied!';
-          setTimeout(()=>copyBtn.textContent='Copy Key',1500);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => (copyBtn.textContent = 'Copy Key'), 1500);
         });
       }
     }
