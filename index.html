@@ -90,12 +90,12 @@
     }
 
     #result,
-#copy-btn {
-  display: none;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-}
+    #copy-btn {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
 
     #result {
       position: fixed;
@@ -203,11 +203,8 @@
     </div>
 
     <button id="generate-btn">Generate Key</button>
-
     <div id="result"></div>
-
     <button id="copy-btn" disabled>Copy Key</button>
-
     <div class="footer">made by: Echo Scripts</div>
   </div>
 
@@ -216,12 +213,11 @@
     const copyBtn = document.getElementById('copy-btn');
     const resultEl = document.getElementById('result');
     const STORAGE_KEY = 'petDuperKeyData';
-    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours in seconds
+    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours
 
     btn.addEventListener('click', () => generateKey());
     copyBtn.addEventListener('click', () => copyKey());
 
-    // Generate or get device ID
     function getDeviceId() {
       let id = localStorage.getItem('deviceId');
       if (!id) {
@@ -231,7 +227,6 @@
       return id;
     }
 
-    // Load saved key & timer info from localStorage
     function loadSavedData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return null;
@@ -242,7 +237,6 @@
       }
     }
 
-    // Save key & expiry timestamp to localStorage
     function saveKeyData(key, expiryTimestamp) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         key,
@@ -250,13 +244,11 @@
       }));
     }
 
-    // Disable the generate button
     function disableButton() {
       btn.disabled = true;
       btn.textContent = "Key Generated";
     }
 
-    // Format seconds to HH:MM:SS
     function formatTime(seconds) {
       const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
       const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
@@ -264,34 +256,30 @@
       return `${h}:${m}:${s}`;
     }
 
-    // Show result and copy button, with optional fade-in animation
     function showResultAndCopy(withAnimation = false) {
-  resultEl.style.display = 'block';
-  copyBtn.style.display = 'inline-block';
+      resultEl.style.display = 'block';
+      copyBtn.style.display = 'inline-block';
 
-  if (withAnimation) {
-    resultEl.style.opacity = '0';
-    copyBtn.style.opacity = '0';
-    resultEl.style.pointerEvents = 'none';
-    copyBtn.style.pointerEvents = 'none';
+      if (withAnimation) {
+        resultEl.style.opacity = '0';
+        copyBtn.style.opacity = '0';
+        resultEl.style.pointerEvents = 'none';
+        copyBtn.style.pointerEvents = 'none';
 
-    // Trigger fade-in on next frame
-    requestAnimationFrame(() => {
-      resultEl.style.opacity = '1';
-      resultEl.style.pointerEvents = 'auto';
-      copyBtn.style.opacity = '1';
-      copyBtn.style.pointerEvents = 'auto';
-    });
-  } else {
-    resultEl.style.opacity = '1';
-    copyBtn.style.opacity = '1';
-    resultEl.style.pointerEvents = 'auto';
-    copyBtn.style.pointerEvents = 'auto';
-  }
-}
+        requestAnimationFrame(() => {
+          resultEl.style.opacity = '1';
+          resultEl.style.pointerEvents = 'auto';
+          copyBtn.style.opacity = '1';
+          copyBtn.style.pointerEvents = 'auto';
+        });
+      } else {
+        resultEl.style.opacity = '1';
+        copyBtn.style.opacity = '1';
+        resultEl.style.pointerEvents = 'auto';
+        copyBtn.style.pointerEvents = 'auto';
+      }
+    }
 
-
-    // Countdown timer function updating the #result text
     function startCountdown(expiryTimestamp, key) {
       function update() {
         const now = Date.now();
@@ -300,37 +288,33 @@
         if (diffSeconds < 0) diffSeconds = 0;
 
         resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
-        showResultAndCopy(false); // Ensure visible (no animation during countdown)
+        showResultAndCopy(false);
         copyBtn.disabled = false;
 
-        if (diffSeconds > 0) {
-          requestAnimationFrame(update);
-        } else {
-          // Key expired: re-enable generate button and hide result/copy again
+        if (diffSeconds <= 0) {
+          clearInterval(countdownInterval);
           btn.disabled = false;
           btn.textContent = "Generate Key";
 
-          // Hide result and copy btn after expiry
           resultEl.style.opacity = '0';
           resultEl.style.pointerEvents = 'none';
           copyBtn.style.opacity = '0';
           copyBtn.style.pointerEvents = 'none';
-
           copyBtn.disabled = true;
           localStorage.removeItem(STORAGE_KEY);
         }
       }
+
       update();
+      const countdownInterval = setInterval(update, 1000);
     }
 
-    // On page load, check if key + timer exists and restore UI state
     window.onload = () => {
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
         startCountdown(data.expiryTimestamp, data.key);
       } else {
-        // Ensure result and copy btn are hidden initially
         resultEl.style.opacity = '0';
         resultEl.style.pointerEvents = 'none';
         copyBtn.style.opacity = '0';
@@ -339,10 +323,8 @@
       }
     };
 
-    // Generate key via backend
     async function generateKey() {
-      if (btn.disabled) return; // safety check
-
+      if (btn.disabled) return;
       btn.textContent = 'Generating...';
 
       try {
@@ -352,14 +334,9 @@
 
         if (data.success && data.key) {
           disableButton();
-
-          // Calculate expiry timestamp 5 hours from now
           const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
           saveKeyData(data.key, expiryTimestamp);
-
-          // Fade in result and copy btn
           showResultAndCopy(true);
-
           startCountdown(expiryTimestamp, data.key);
         } else {
           resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
@@ -375,7 +352,6 @@
       }
     }
 
-    // Copy the key to clipboard (extract key from resultEl text)
     function copyKey() {
       const text = resultEl.textContent || '';
       const lines = text.split('\n');
