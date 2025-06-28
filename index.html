@@ -89,7 +89,7 @@
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
-    /* HIDE result and copy btn initially */
+    /* HIDE RESULT & COPY BTN INITIALLY */
     #result, #copy-btn {
       opacity: 0;
       pointer-events: none;
@@ -133,7 +133,6 @@
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
-      animation: fadeIn 0.8s 0.7s both;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
       user-select: none;
@@ -273,9 +272,15 @@
         if (diffSeconds < 0) diffSeconds = 0;
 
         resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
+        
+        // SHOW RESULT & COPY BTN
         resultEl.style.opacity = 1;
+        resultEl.style.pointerEvents = 'auto';
+        resultEl.style.userSelect = 'text';
 
-        // Enable copy button if key visible
+        copyBtn.style.opacity = 1;
+        copyBtn.style.pointerEvents = 'auto';
+        copyBtn.style.userSelect = 'auto';
         copyBtn.disabled = false;
 
         if (diffSeconds > 0) {
@@ -290,16 +295,6 @@
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
-
-        resultEl.style.opacity = 1;
-        resultEl.style.pointerEvents = 'auto';
-        resultEl.style.userSelect = 'text';
-
-        copyBtn.style.opacity = 1;
-        copyBtn.style.pointerEvents = 'auto';
-        copyBtn.style.userSelect = 'auto';
-        copyBtn.disabled = false;
-
         startCountdown(data.expiryTimestamp, data.key);
       }
     };
@@ -322,16 +317,6 @@
           const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
           saveKeyData(data.key, expiryTimestamp);
 
-          // Show result and copy btn
-          resultEl.style.opacity = 1;
-          resultEl.style.pointerEvents = 'auto';
-          resultEl.style.userSelect = 'text';
-
-          copyBtn.style.opacity = 1;
-          copyBtn.style.pointerEvents = 'auto';
-          copyBtn.style.userSelect = 'auto';
-          copyBtn.disabled = false;
-
           startCountdown(expiryTimestamp, data.key);
         } else {
           resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
@@ -339,6 +324,7 @@
           resultEl.style.pointerEvents = 'auto';
           resultEl.style.userSelect = 'text';
 
+          // HIDE COPY BUTTON ON ERROR
           copyBtn.style.opacity = 0;
           copyBtn.style.pointerEvents = 'none';
           copyBtn.style.userSelect = 'none';
@@ -352,6 +338,7 @@
         resultEl.style.pointerEvents = 'auto';
         resultEl.style.userSelect = 'text';
 
+        // HIDE COPY BUTTON ON ERROR
         copyBtn.style.opacity = 0;
         copyBtn.style.pointerEvents = 'none';
         copyBtn.style.userSelect = 'none';
