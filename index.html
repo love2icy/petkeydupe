@@ -6,83 +6,146 @@
   <title>Echo Scripts Key Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
       font-family: 'Poppins', sans-serif;
-      background: #000; color: #fff;
-      height: 100vh; overflow: hidden;
-      text-align: center; position: relative;
+      background: #000;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    /* Video BG */
     #bg-video {
-      position: fixed; top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      object-fit: cover; z-index: -2;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
       pointer-events: none;
     }
 
     .container {
-      position: relative; height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      padding-top: 40px;
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
     }
 
-    .header h1 {
-      font-size: 3rem; font-weight: 700;
+    .header {
+      position: absolute;
+      top: 40px;
+      animation: fadeInDown 0.8s ease-out both;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
       text-shadow: 0 0 8px rgba(0,0,0,0.3);
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.3rem;
     }
-    .header h2 {
-      font-size: 1.8rem; font-weight: 500;
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
       text-shadow: 0 0 6px rgba(0,0,0,0.3);
-      margin-bottom: 20px;
+      animation: fadeInDown 0.8s 0.2s both;
     }
 
-    /* Animate button on hover */
     #generate-btn {
-      background: transparent; border: 2px solid #fff;
-      color: #fff; padding: 15px 40px;
-      font-size: 1.2rem; font-weight: 600;
-      border-radius: 50px; cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    #generate-btn:hover:not(:disabled) {
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(255,255,255,0.6);
-    }
-    #generate-btn:disabled {
-      opacity: 0.5; cursor: not-allowed;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.8s 0.4s both;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
     }
 
-    /* Result fade+slide in */
+    #generate-btn:disabled {
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: rgba(255,255,255,0.05);
+    }
+
+    #generate-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-52%);
+      box-shadow: 0 0 12px #fff, 0 0 20px #fff;
+    }
+
     #result {
-      margin-top: 20px;
-      background: rgba(255,255,255,0.15);
-      padding: 20px; border-radius: 15px;
-      max-width: 360px; font-size: 1.1rem;
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.4s ease, transform 0.4s ease;
+      position: absolute;
+      top: 63%;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 360px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      word-break: break-word;
+      min-height: 60px;
+      user-select: text;
+      opacity: 0;
+      animation: fadeIn 0.5s 1s forwards;
       white-space: pre-line;
     }
 
     .footer {
-      position: absolute; bottom: 20px;
-      width: 100%; font-size: 0.9rem;
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
       color: #ddd;
+      animation: fadeInUp 0.8s 1.2s both;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
 
     @media (max-width: 400px) {
-      #generate-btn { width: 80%; }
-      #result { width: 90%; }
+      h1 { font-size: 2.5rem; }
+      h2 { font-size: 1.5rem; }
+      #generate-btn { padding: 12px; font-size: 1rem; }
+      #result { max-width: 90%; font-size: 1rem; padding: 15px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Background Video -->
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="assets/bg.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
   </video>
 
   <div class="container">
@@ -92,6 +155,7 @@
     </div>
 
     <button id="generate-btn">Generate Key</button>
+
     <div id="result"></div>
 
     <div class="footer">made by: Echo Scripts</div>
@@ -101,10 +165,11 @@
     const btn = document.getElementById('generate-btn');
     const resultEl = document.getElementById('result');
     const STORAGE_KEY = 'petDuperKeyData';
-    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5h
+    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours in seconds
 
-    btn.addEventListener('click', generateKey);
+    btn.addEventListener('click', () => generateKey());
 
+    // Generate or get device ID
     function getDeviceId() {
       let id = localStorage.getItem('deviceId');
       if (!id) {
@@ -114,64 +179,98 @@
       return id;
     }
 
+    // Load saved key & timer info from localStorage
     function loadSavedData() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
-      catch { return null; }
-    }
-    function saveKeyData(key, expiry) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({key, expiry}));
-    }
-    function disableButton() {
-      btn.disabled = true;
-      btn.textContent = 'Key Generated';
-    }
-    function formatTime(s) {
-      const h = String(Math.floor(s/3600)).padStart(2,'0');
-      const m = String(Math.floor((s%3600)/60)).padStart(2,'0');
-      const sec = String(s%60).padStart(2,'0');
-      return `${h}:${m}:${sec}`;
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return null;
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
     }
 
-    function startCountdown(expiry, key) {
+    // Save key & expiry timestamp to localStorage
+    function saveKeyData(key, expiryTimestamp) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        key,
+        expiryTimestamp
+      }));
+    }
+
+    // Disable the generate button
+    function disableButton() {
+      btn.disabled = true;
+      btn.textContent = "Key Generated";
+    }
+
+    // Format seconds to HH:MM:SS
+    function formatTime(seconds) {
+      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    // Countdown timer function updating the #result text
+    function startCountdown(expiryTimestamp, key) {
       function update() {
-        let diff = Math.floor((expiry - Date.now())/1000);
-        if (diff<0) diff=0;
-        resultEl.textContent = `Your Key:\n${key}\nExpires in: ${formatTime(diff)}`;
-        resultEl.style.opacity = '1';
-        resultEl.style.transform = 'translateY(0)';
-        if (diff>0) requestAnimationFrame(update);
+        const now = Date.now();
+        let diffSeconds = Math.floor((expiryTimestamp - now) / 1000);
+
+        if (diffSeconds < 0) diffSeconds = 0;
+
+        resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
+        resultEl.style.opacity = 1;
+
+        if (diffSeconds > 0) {
+          requestAnimationFrame(update);
+        } else {
+          // Timer finished: optionally enable button again or keep disabled
+          // Here we keep disabled to prevent regeneration
+          // You can add code here if you want to allow new generation after expiry
+        }
       }
       update();
     }
 
+    // On page load, check if key + timer exists and restore UI state
     window.onload = () => {
       const data = loadSavedData();
-      if (data?.key && data.expiry) {
+      if (data && data.key && data.expiryTimestamp) {
         disableButton();
-        startCountdown(data.expiry, data.key);
+        startCountdown(data.expiryTimestamp, data.key);
       }
     };
 
+    // Generate key via backend
     async function generateKey() {
-      if (btn.disabled) return;
+      if (btn.disabled) return; // safety check
+
       btn.textContent = 'Generating...';
+
       try {
-        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${getDeviceId()}`);
+        const deviceId = getDeviceId();
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
         const data = await res.json();
-        if (data.success) {
+
+        if (data.success && data.key) {
           disableButton();
-          const expiry = Date.now() + TIMER_DURATION_SEC*1000;
-          saveKeyData(data.key, expiry);
-          startCountdown(expiry, data.key);
+
+          // Calculate expiry timestamp 5 hours from now
+          const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
+          saveKeyData(data.key, expiryTimestamp);
+
+          startCountdown(expiryTimestamp, data.key);
         } else {
-          resultEl.textContent = `Error: ${data.message}`;
-          resultEl.style.opacity = '1';
-          resultEl.style.transform = 'translateY(0)';
+          resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
+          resultEl.style.opacity = 1;
+          btn.textContent = 'Generate Key';
         }
       } catch {
-        resultEl.textContent = 'Network error';
-        resultEl.style.opacity = '1';
-        resultEl.style.transform = 'translateY(0)';
+        resultEl.textContent = 'Network error or backend unreachable';
+        resultEl.style.opacity = 1;
+        btn.textContent = 'Generate Key';
       }
     }
   </script>
