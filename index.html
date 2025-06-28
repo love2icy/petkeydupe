@@ -6,15 +6,14 @@
   <title>Echo Scripts Key Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box‑sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
       background: #000;
       color: #fff;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
     #bg-video {
       position: fixed; top: 0; left: 0;
@@ -28,19 +27,23 @@
     }
     h1 { font-size: 3rem; font-weight: 700; text-shadow:0 0 8px rgba(0,0,0,0.3); }
     h2 {
-      font-size:1.8rem; font-weight:500;
+      font-size: 1.8rem; font-weight: 500;
       text-shadow:0 0 6px rgba(0,0,0,0.3);
       animation: fadeInDown 1.2s 0.3s both;
     }
 
+    /* centered wrapper that stays put */
     .interactive {
-      /* fill remaining space and center content vertically */
-      flex: 1;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 1rem;
+      width: 100%;
+      max-width: 500px; /* limit overall width */
+      padding: 0 1rem;
     }
 
     button {
@@ -54,44 +57,60 @@
       cursor: pointer;
       transition: all 0.3s ease;
       backdrop-filter: blur(5px);
-      box-shadow: 0 0 8px rgba(255,255,255,0.2),
-                  0 0 15px rgba(255,255,255,0.1);
+      box-shadow:
+        0 0 8px rgba(255,255,255,0.2),
+        0 0 15px rgba(255,255,255,0.1);
       opacity: 0;
       transform: translateY(20px);
     }
     button:disabled {
-      border-color: #666; color: #666;
-      cursor: not-allowed; background: rgba(255,255,255,0.05);
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      background: rgba(255,255,255,0.05);
       box-shadow: none;
     }
     button:hover:not(:disabled) {
       background: rgba(255,255,255,0.1);
       transform: translateY(-2px);
-      box-shadow: 0 0 12px #fff, 0 0 20px #fff;
+      box-shadow:
+        0 0 12px #fff,
+        0 0 20px #fff;
     }
 
-    #generate-btn    { animation: fadeInSlideUp 1.5s 1.2s forwards; }
-    #result          {
-                       background: rgba(255,255,255,0.15);
-                       padding: 20px; border-radius: 15px;
-                       max-width: 360px; font-weight: 500;
-                       font-size: 1.1rem; box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                       word-break: break-word; user-select: text;
-                       white-space: pre-line;
-                       opacity: 0; transform: translateY(20px);
-                       animation: fadeInSlideUp 1.5s 1.5s forwards;
-                     }
-    #copy-btn        {
-                       display: none;
-                       animation: fadeInSlideUp 1.5s 1.8s forwards;
-                     }
+    #generate-btn {
+      animation: fadeInSlideUp 1.2s 1s forwards;
+    }
+    #copy-btn {
+      display: none;
+      animation: fadeInSlideUp 1.2s 2.2s forwards;
+    }
+
+    #result {
+      width: 100%;
+      max-width: 460px;         /* wider to fit entire key */
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 15px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      word-break: normal;       /* don't wrap mid‑key */
+      user-select: text;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInSlideUp 1.2s 1.6s forwards;
+    }
 
     .footer {
+      position: absolute;
+      bottom: 2vh;
+      width: 100%;
       text-align: center;
-      margin-bottom: 2vh;
-      font-size: .9rem;
+      font-size: 0.9rem;
       color: #ddd;
-      animation: fadeInUp 0.8s 2s both;
+      animation: fadeInUp 0.8s 2.5s both;
     }
 
     @keyframes fadeInDown {
@@ -111,7 +130,7 @@
       h1 { font-size: 2.5rem; }
       h2 { font-size: 1.5rem; }
       button { padding: 12px; font-size: 1rem; }
-      #result { max-width: 90%; font-size: 1rem; padding: 15px; }
+      #result { font-size: 1rem; padding: 15px; }
     }
   </style>
 </head>
@@ -135,102 +154,114 @@
   <div class="footer">made by: Echo Scripts</div>
 
   <script>
-    const btn   = document.getElementById('generate-btn');
-    const resultEl = document.getElementById('result');
-    const copyBtn  = document.getElementById('copy-btn');
+    const btn     = document.getElementById('generate-btn');
+    const result  = document.getElementById('result');
+    const copyBtn = document.getElementById('copy-btn');
     const STORAGE = 'petDuperKeyData';
-    const EXP_MS  = 5*60*60*1000;
+    const EXP_MS  = 5 * 60 * 60 * 1000;
 
-    btn.addEventListener('click', genKey);
+    btn.addEventListener('click', generateKey);
     copyBtn.addEventListener('click', copyKey);
 
-    function getId(){
+    function getId() {
       let id = localStorage.getItem('deviceId');
-      if(!id){
+      if (!id) {
         id = crypto.randomUUID();
         localStorage.setItem('deviceId', id);
       }
       return id;
     }
-    function loadData(){
+
+    function loadData() {
       try { return JSON.parse(localStorage.getItem(STORAGE)); }
       catch { return null; }
     }
-    function saveData(key, exp){
-      localStorage.setItem(STORAGE, JSON.stringify({ key, exp }));
+
+    function saveData(key, expiry) {
+      localStorage.setItem(STORAGE, JSON.stringify({ key, expiry }));
     }
-    function fmt(sec){
-      const h = String(Math.floor(sec/3600)).padStart(2,'0'),
-            m = String(Math.floor((sec%3600)/60)).padStart(2,'0'),
-            s = String(sec%60).padStart(2,'0');
+
+    function disableGen() {
+      btn.disabled = true;
+      btn.textContent = 'Key Generated';
+    }
+
+    function enableGen() {
+      btn.disabled = false;
+      btn.textContent = 'Generate Key';
+      copyBtn.style.display = 'none';
+      result.textContent = '';
+    }
+
+    function formatTime(sec) {
+      const h  = String(Math.floor(sec/3600)).padStart(2,'0'),
+            m  = String(Math.floor((sec%3600)/60)).padStart(2,'0'),
+            s  = String(sec%60).padStart(2,'0');
       return `${h}:${m}:${s}`;
     }
-    function disableGen(){
-      btn.disabled=true;
-      btn.textContent='Key Generated';
-    }
-    function enableGen(){
-      btn.disabled=false;
-      btn.textContent='Generate Key';
-      copyBtn.style.display='none';
-      resultEl.textContent='';
-    }
-    function tick(exp, key){
-      const now = Date.now(),
-            diff = Math.floor((exp - now)/1000);
-      if(diff <= 0){
-        resultEl.textContent = 'Key expired. You can now generate a new one.';
-        enableGen();
-        return;
+
+    function startCountdown(expiry, key) {
+      function tick() {
+        const now = Date.now();
+        const diff = Math.floor((expiry - now)/1000);
+        if (diff <= 0) {
+          result.textContent = 'Key expired. Generate a new one.';
+          enableGen();
+          return;
+        }
+        result.textContent = `Your Key: ${key}\nExpires in: ${formatTime(diff)}`;
+        requestAnimationFrame(tick);
       }
-      resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${fmt(diff)}`;
-      requestAnimationFrame(() => tick(exp, key));
-    }
-    function showCopy(){
-      copyBtn.style.display='block';
+      tick();
     }
 
-    window.onload = () => {
+    function showCopy() {
+      copyBtn.style.display = 'block';
+    }
+
+    window.addEventListener('load', () => {
       const data = loadData();
-      if(data && data.key && data.exp){
-        if(Date.now() < data.exp){
+      if (data && data.key && data.expiry) {
+        if (Date.now() < data.expiry) {
           disableGen();
-          tick(data.exp, data.key);
+          startCountdown(data.expiry, data.key);
           showCopy();
         } else {
-          resultEl.textContent = 'Key expired. You can now generate a new one.';
+          result.textContent = 'Key expired. Generate a new one.';
         }
       }
-    };
+    });
 
-    async function genKey(){
-      if(btn.disabled) return;
-      btn.textContent='Generating...';
+    async function generateKey() {
+      if (btn.disabled) return;
+      btn.textContent = 'Generating...';
       try {
-        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${getId()}`);
-        const js  = await res.json();
-        if(js.success && js.key){
-          const exp = Date.now() + EXP_MS;
-          saveData(js.key, exp);
+        const res = await fetch(
+          `https://petkeydupe.onrender.com/generate-key?deviceId=${getId()}`
+        );
+        const js = await res.json();
+        if (js.success && js.key) {
+          const expiry = Date.now() + EXP_MS;
+          saveData(js.key, expiry);
           disableGen();
-          tick(exp, js.key);
+          startCountdown(expiry, js.key);
           showCopy();
         } else {
-          resultEl.textContent = `Error: ${js.message || 'Unable to generate'}`;
+          result.textContent = `Error: ${js.message || 'Unable to generate'}`;
           enableGen();
         }
       } catch {
-        resultEl.textContent = 'Network error or backend unreachable';
+        result.textContent = 'Network error or backend unreachable';
         enableGen();
       }
     }
 
-    function copyKey(){
-      const m = resultEl.textContent.match(/[A-Za-z0-9]{30}/);
-      if(m){
-        navigator.clipboard.writeText(m[0]).then(()=>{
-          copyBtn.textContent='Copied!';
-          setTimeout(()=> copyBtn.textContent='Copy Key', 1500);
+    function copyKey() {
+      const match = result.textContent.match(/[A-Za-z0-9]{30}/);
+      if (match) {
+        navigator.clipboard.writeText(match[0]).then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => (copyBtn.textContent = 'Copy Key'), 1500);
         });
       }
     }
