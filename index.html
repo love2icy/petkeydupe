@@ -6,120 +6,140 @@
   <title>Echo Scripts Key Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin:0; padding:0 }
-    html, body { height:100% }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
-      background:#000; color:#fff;
-      font-family:'Poppins',sans-serif;
+      background: #000;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
       position: relative;
       overflow: hidden;
     }
+
     #bg-video {
-      position: fixed; top:0; left:0;
-      width:100vw; height:100vh;
-      object-fit:cover; z-index:-2;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: -2;
     }
+
     .header {
-      text-align:center; padding-top:2vh;
-      animation:fadeInDown 1.2s both;
+      text-align: center;
+      padding-top: 2vh;
+      animation: fadeInDown 1.2s both;
     }
-    h1 { font-size:3rem; font-weight:700; text-shadow:0 0 8px rgba(0,0,0,0.3) }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    }
+
     h2 {
-      margin-top:.5rem;
-      font-size:1.8rem; font-weight:500;
-      text-shadow:0 0 6px rgba(0,0,0,0.3);
-      animation:fadeInDown 1.2s .3s both;
+      margin-top: .5rem;
+      font-size: 1.8rem;
+      font-weight: 500;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+      animation: fadeInDown 1.2s .3s both;
     }
 
-    /* Generate button fixed at center */
-    #generate-btn {
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      background:transparent;
-      border:2px solid #fff;
-      color:#fff;
-      padding:15px 40px;
-      font-size:1.2rem; font-weight:600;
-      border-radius:50px;
-      cursor:pointer;
-      backdrop-filter:blur(5px);
-      box-shadow:0 0 8px rgba(255,255,255,0.2),0 0 15px rgba(255,255,255,0.1);
-      animation:fadeInSlideUp 1.2s 1s both;
+      width: 100%;
+      max-width: 600px;
+      padding: 0 20px;
+      text-align: center;
     }
+
+    #generate-btn, #copy-btn {
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
+      animation: fadeInSlideUp 1.2s both;
+    }
+
     #generate-btn:disabled {
-      border-color:#666; color:#666;
-      background:rgba(255,255,255,0.05);
-      cursor:not-allowed; box-shadow:none;
-    }
-    #generate-btn:hover:not(:disabled) {
-      background:rgba(255,255,255,0.1);
-      transform: translate(-50%, -52%);
-      box-shadow:0 0 12px #fff,0 0 20px #fff;
+      border-color: #666;
+      color: #666;
+      background: rgba(255,255,255,0.05);
+      cursor: not-allowed;
+      box-shadow: none;
     }
 
-    /* Result box below button */
-    #result {
-      position: absolute;
-      top: calc(50% + 60px); /* 60px below center to clear the button */
-      left: 50%; transform: translateX(-50%);
-      display: none;
-      width: 90%; max-width:460px;
-      background:rgba(255,255,255,0.15);
-      border-radius:15px; padding:20px;
-      font-size:1.1rem; font-weight:500;
-      box-shadow:0 0 10px rgba(0,0,0,0.2);
-      white-space: nowrap;
-      min-height: 4rem; /* two lines */
-      animation:fadeInSlideUp 1.2s 1.6s both;
-    }
-
-    /* Copy button directly under result box */
-    #copy-btn {
-      position: absolute;
-      top: calc(50% + 60px + 4rem + 10px); /* result top + min-height + 10px gap */
-      left: 50%; transform: translateX(-50%);
-      display: none;
-      background:transparent;
-      border:2px solid #fff;
-      color:#fff;
-      padding:15px 40px;
-      font-size:1.2rem; font-weight:600;
-      border-radius:50px;
-      cursor:pointer;
-      backdrop-filter:blur(5px);
-      box-shadow:0 0 8px rgba(255,255,255,0.2),0 0 15px rgba(255,255,255,0.1);
-      animation:fadeInSlideUp 1.2s 2.2s both;
-    }
+    #generate-btn:hover:not(:disabled),
     #copy-btn:hover {
-      background:rgba(255,255,255,0.1);
-      transform: translateX(-50%) translateY(-2px);
-      box-shadow:0 0 12px #fff,0 0 20px #fff;
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px #fff, 0 0 20px #fff;
+    }
+
+    #result {
+      display: none;
+      width: 100%;
+      background: rgba(255,255,255,0.15);
+      border-radius: 15px;
+      padding: 20px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      white-space: nowrap;
+      min-height: 4rem;
+      animation: fadeInSlideUp 1.2s both;
     }
 
     .footer {
-      position:absolute; bottom:5vh; width:100%;
-      text-align:center; font-size:.9rem; color:#ddd;
-      animation:fadeInUp .8s 2.5s both;
+      position: absolute;
+      bottom: 5vh;
+      width: 100%;
+      text-align: center;
+      font-size: .9rem;
+      color: #ddd;
+      animation: fadeInUp .8s 2.5s both;
     }
 
     @keyframes fadeInDown {
-      from { opacity:0; transform:translateY(-20px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-    @keyframes fadeInUp {
-      from { opacity:0; transform:translateY(20px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-    @keyframes fadeInSlideUp {
-      from { opacity:0; transform:translateY(20px) }
-      to   { opacity:1; transform:translateY(0) }
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width:400px) {
-      h1{font-size:2.5rem} h2{font-size:1.5rem}
-      #generate-btn,#copy-btn{padding:12px;font-size:1rem}
-      #result{padding:15px;font-size:1rem;min-height:3.5rem}
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 400px) {
+      h1 { font-size: 2.5rem; }
+      h2 { font-size: 1.5rem; }
+      #generate-btn, #copy-btn {
+        padding: 12px;
+        font-size: 1rem;
+      }
+      #result {
+        padding: 15px;
+        font-size: 1rem;
+        min-height: 3.5rem;
+      }
     }
   </style>
 </head>
@@ -133,9 +153,11 @@
     <h2>Echo Scripts Key Generator</h2>
   </div>
 
-  <button id="generate-btn">Generate Key</button>
-  <div id="result"></div>
-  <button id="copy-btn">Copy Key</button>
+  <div class="center-container">
+    <button id="generate-btn">Generate Key</button>
+    <div id="result"></div>
+    <button id="copy-btn">Copy Key</button>
+  </div>
 
   <div class="footer">made by: Echo Scripts</div>
 
@@ -171,6 +193,7 @@
       btn.disabled = true;
       btn.textContent = 'Key Generated';
     }
+
     function enableGen() {
       btn.disabled = false;
       btn.textContent = 'Generate Key';
@@ -179,9 +202,9 @@
     }
 
     function fmt(sec) {
-      const h = String(Math.floor(sec/3600)).padStart(2,'0'),
-            m = String(Math.floor((sec%3600)/60)).padStart(2,'0'),
-            s = String(sec%60).padStart(2,'0');
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0'),
+            m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0'),
+            s = String(sec % 60).padStart(2, '0');
       return `${h}:${m}:${s}`;
     }
 
@@ -193,7 +216,7 @@
     function startCountdown(expiry, key) {
       function tick() {
         const now = Date.now();
-        const diff = Math.floor((expiry - now)/1000);
+        const diff = Math.floor((expiry - now) / 1000);
         if (diff <= 0) {
           renderResult(key, '00:00:00');
           enableGen();
@@ -233,10 +256,10 @@
           startCountdown(expiry, js.key);
           showCopy();
         } else {
-          renderResult(`Error: ${js.message||'Generation failed'}`, '');
+          renderResult(`Error: ${js.message || 'Generation failed'}`, '');
         }
       } catch {
-        renderResult('Network error or backend unreachable','');
+        renderResult('Network error or backend unreachable', '');
       }
     }
 
