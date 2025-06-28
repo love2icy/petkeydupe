@@ -89,6 +89,14 @@
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
+    /* HIDE result and copy btn initially */
+    #result, #copy-btn {
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+      transition: opacity 0.5s ease;
+    }
+
     #result {
       position: fixed;
       top: 55%;
@@ -104,9 +112,6 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
       word-break: break-word;
       min-height: 60px;
-      user-select: text;
-      opacity: 0;
-      animation: fadeIn 0.5s 1s forwards;
       white-space: pre-line;
       margin-bottom: 10px;
       backdrop-filter: blur(5px);
@@ -285,6 +290,16 @@
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
+
+        resultEl.style.opacity = 1;
+        resultEl.style.pointerEvents = 'auto';
+        resultEl.style.userSelect = 'text';
+
+        copyBtn.style.opacity = 1;
+        copyBtn.style.pointerEvents = 'auto';
+        copyBtn.style.userSelect = 'auto';
+        copyBtn.disabled = false;
+
         startCountdown(data.expiryTimestamp, data.key);
       }
     };
@@ -307,18 +322,42 @@
           const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
           saveKeyData(data.key, expiryTimestamp);
 
+          // Show result and copy btn
+          resultEl.style.opacity = 1;
+          resultEl.style.pointerEvents = 'auto';
+          resultEl.style.userSelect = 'text';
+
+          copyBtn.style.opacity = 1;
+          copyBtn.style.pointerEvents = 'auto';
+          copyBtn.style.userSelect = 'auto';
+          copyBtn.disabled = false;
+
           startCountdown(expiryTimestamp, data.key);
         } else {
           resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
           resultEl.style.opacity = 1;
-          btn.textContent = 'Generate Key';
+          resultEl.style.pointerEvents = 'auto';
+          resultEl.style.userSelect = 'text';
+
+          copyBtn.style.opacity = 0;
+          copyBtn.style.pointerEvents = 'none';
+          copyBtn.style.userSelect = 'none';
           copyBtn.disabled = true;
+
+          btn.textContent = 'Generate Key';
         }
       } catch {
         resultEl.textContent = 'Network error or backend unreachable';
         resultEl.style.opacity = 1;
-        btn.textContent = 'Generate Key';
+        resultEl.style.pointerEvents = 'auto';
+        resultEl.style.userSelect = 'text';
+
+        copyBtn.style.opacity = 0;
+        copyBtn.style.pointerEvents = 'none';
+        copyBtn.style.userSelect = 'none';
         copyBtn.disabled = true;
+
+        btn.textContent = 'Generate Key';
       }
     }
 
