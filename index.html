@@ -89,14 +89,6 @@
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
-    /* HIDE RESULT & COPY BTN INITIALLY */
-    #result, #copy-btn {
-      opacity: 0;
-      pointer-events: none;
-      user-select: none;
-      transition: opacity 0.5s ease;
-    }
-
     #result {
       position: fixed;
       top: 55%;
@@ -112,14 +104,18 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
       word-break: break-word;
       min-height: 60px;
+      user-select: text;
       white-space: pre-line;
       margin-bottom: 10px;
       backdrop-filter: blur(5px);
       text-align: center;
       z-index: 1;
+
+      opacity: 0;              /* start hidden */
+      animation: none;         /* no animation on load */
     }
 
-   #copy-btn {
+    #copy-btn {
       position: fixed;
       top: 70%;
       left: 50%;
@@ -133,12 +129,22 @@
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
-      animation: fadeIn 0.8s 0.7s both;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
       user-select: none;
       margin-top: 15px;
       z-index: 1;
+
+      opacity: 0;             /* start hidden */
+      animation: none;        /* no animation on load */
+      pointer-events: none;   /* disable clicks initially */
+    }
+
+    /* Helper class to fade in and enable interaction */
+    .visible-fade-in {
+      opacity: 1 !important;
+      animation: fadeIn 0.5s forwards !important;
+      pointer-events: auto !important;
     }
 
     #copy-btn:disabled {
@@ -273,15 +279,10 @@
         if (diffSeconds < 0) diffSeconds = 0;
 
         resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
-        
-        // SHOW RESULT & COPY BTN
-        resultEl.style.opacity = 1;
-        resultEl.style.pointerEvents = 'auto';
-        resultEl.style.userSelect = 'text';
 
-        copyBtn.style.opacity = 1;
-        copyBtn.style.pointerEvents = 'auto';
-        copyBtn.style.userSelect = 'auto';
+        // Show result and copy button with fade-in
+        resultEl.classList.add('visible-fade-in');
+        copyBtn.classList.add('visible-fade-in');
         copyBtn.disabled = false;
 
         if (diffSeconds > 0) {
@@ -293,10 +294,18 @@
 
     // On page load, check if key + timer exists and restore UI state
     window.onload = () => {
+      copyBtn.disabled = true;
+      resultEl.classList.remove('visible-fade-in');
+      copyBtn.classList.remove('visible-fade-in');
+
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
         startCountdown(data.expiryTimestamp, data.key);
+
+        resultEl.classList.add('visible-fade-in');
+        copyBtn.classList.add('visible-fade-in');
+        copyBtn.disabled = false;
       }
     };
 
@@ -305,6 +314,11 @@
       if (btn.disabled) return; // safety check
 
       btn.textContent = 'Generating...';
+
+      // Hide result and copy button during generate
+      copyBtn.disabled = true;
+      resultEl.classList.remove('visible-fade-in');
+      copyBtn.classList.remove('visible-fade-in');
 
       try {
         const deviceId = getDeviceId();
@@ -319,32 +333,23 @@
           saveKeyData(data.key, expiryTimestamp);
 
           startCountdown(expiryTimestamp, data.key);
+
+          // Show result and copy button with fade-in
+          resultEl.classList.add('visible-fade-in');
+          copyBtn.classList.add('visible-fade-in');
+          copyBtn.disabled = false;
         } else {
           resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
-          resultEl.style.opacity = 1;
-          resultEl.style.pointerEvents = 'auto';
-          resultEl.style.userSelect = 'text';
-
-          // HIDE COPY BUTTON ON ERROR
-          copyBtn.style.opacity = 0;
-          copyBtn.style.pointerEvents = 'none';
-          copyBtn.style.userSelect = 'none';
+          resultEl.classList.add('visible-fade-in');
+          copyBtn.classList.remove('visible-fade-in');
           copyBtn.disabled = true;
-
           btn.textContent = 'Generate Key';
         }
       } catch {
         resultEl.textContent = 'Network error or backend unreachable';
-        resultEl.style.opacity = 1;
-        resultEl.style.pointerEvents = 'auto';
-        resultEl.style.userSelect = 'text';
-
-        // HIDE COPY BUTTON ON ERROR
-        copyBtn.style.opacity = 0;
-        copyBtn.style.pointerEvents = 'none';
-        copyBtn.style.userSelect = 'none';
+        resultEl.classList.add('visible-fade-in');
+        copyBtn.classList.remove('visible-fade-in');
         copyBtn.disabled = true;
-
         btn.textContent = 'Generate Key';
       }
     }
