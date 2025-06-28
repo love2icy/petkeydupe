@@ -63,7 +63,8 @@
     #generate-btn {
       position: absolute;
       top: 50%;
-      transform: translateY(-50%);
+      transform: translateY(-20px);
+      opacity: 0;
       background: transparent;
       border: 2px solid #fff;
       color: #fff;
@@ -73,7 +74,7 @@
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
-      animation: fadeIn 1.5s 0.8s both; /* longer fade-in & delayed */
+      animation: fadeInSlideDown 1.5s 0.8s forwards;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
     }
@@ -88,7 +89,7 @@
 
     #generate-btn:hover:not(:disabled) {
       background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-52%);
+      transform: translateY(-22%);
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
@@ -106,7 +107,8 @@
       min-height: 60px;
       user-select: text;
       opacity: 0;
-      animation: fadeIn 1.5s 1.5s forwards; /* longer fade-in & delayed */
+      transform: translateY(20px);
+      animation: fadeInSlideUp 1.5s 1.5s forwards;
       white-space: pre-line;
     }
 
@@ -115,7 +117,7 @@
       bottom: 20px;
       font-size: 0.9rem;
       color: #ddd;
-      animation: fadeInUp 0.8s 1.2s both;
+      animation: fadeInUp 1.5s 1.7s both;
     }
 
     @keyframes fadeInDown {
@@ -128,8 +130,26 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
+    @keyframes fadeInSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @media (max-width: 400px) {
