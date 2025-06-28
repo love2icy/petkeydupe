@@ -190,7 +190,7 @@
       btn.disabled = false;
       btn.textContent = 'Generate Key';
       copyBtn.style.display = 'none';
-      result.textContent = '';
+      result.innerHTML = '';
     }
 
     function formatTime(sec) {
@@ -200,16 +200,23 @@
       return `${h}:${m}:${s}`;
     }
 
+    function renderResult(key, timeStr) {
+      result.innerHTML = `
+        <div>Your Key: ${key}</div>
+        <div>Expires in: ${timeStr}</div>
+      `;
+    }
+
     function startCountdown(expiry, key) {
       function tick() {
         const now = Date.now();
-        const diff = Math.floor((expiry - now)/1000);
+        let diff = Math.floor((expiry - now)/1000);
         if (diff <= 0) {
-          result.textContent = `Your Key: ${key}\nExpires in: 00:00:00`;
+          renderResult(key, '00:00:00');
           enableGen();
           return;
         }
-        result.textContent = `Your Key: ${key}\nExpires in: ${formatTime(diff)}`;
+        renderResult(key, formatTime(diff));
         requestAnimationFrame(tick);
       }
       tick();
@@ -227,7 +234,7 @@
           startCountdown(data.expiry, data.key);
           showCopy();
         } else {
-          result.textContent = `Your Key: ${data.key}\nExpires in: 00:00:00`;
+          renderResult(data.key, '00:00:00');
         }
       }
     });
@@ -236,10 +243,8 @@
       if (btn.disabled) return;
       btn.textContent = 'Generating...';
       try {
-        const res = await fetch(
-          `https://petkeydupe.onrender.com/generate-key?deviceId=${getId()}`
-        );
-        const js = await res.json();
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${getId()}`);
+        const js  = await res.json();
         if (js.success && js.key) {
           const expiry = Date.now() + EXP_MS;
           saveData(js.key, expiry);
@@ -247,19 +252,19 @@
           startCountdown(expiry, js.key);
           showCopy();
         } else {
-          result.textContent = `Error: ${js.message || 'Unable to generate'}`;
+          result.innerHTML = `<div>Error: ${js.message || 'Unable to generate'}</div>`;
           enableGen();
         }
       } catch {
-        result.textContent = 'Network error or backend unreachable';
+        result.innerHTML = '<div>Network error or backend unreachable</div>';
         enableGen();
       }
     }
 
     function copyKey() {
-      const m = result.textContent.match(/[A-Za-z0-9]{30}/);
-      if (m) {
-        navigator.clipboard.writeText(m[0]).then(() => {
+      const match = result.textContent.match(/[A-Za-z0-9]{30}/);
+      if (match) {
+        navigator.clipboard.writeText(match[0]).then(() => {
           copyBtn.textContent = 'Copied!';
           setTimeout(() => (copyBtn.textContent = 'Copy Key'), 1500);
         });
