@@ -1,132 +1,311 @@
-<script>
-  const btn = document.getElementById('generate-btn');
-  const resultEl = document.getElementById('result');
-  const copyBtn = document.getElementById('copy-btn');
-  const STORAGE_KEY = 'petDuperKeyData';
-  const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours
-
-  btn.addEventListener('click', () => generateKey());
-  copyBtn.addEventListener('click', copyKeyToClipboard);
-
-  function getDeviceId() {
-    let id = localStorage.getItem('deviceId');
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem('deviceId', id);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echo Scripts Key Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    return id;
-  }
-
-  function loadSavedData() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return null;
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return null;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
     }
-  }
 
-  function saveKeyData(key, expiryTimestamp) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      key,
-      expiryTimestamp
-    }));
-  }
+    #bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
+    }
 
-  function disableButton() {
-    btn.disabled = true;
-    btn.textContent = "Key Generated";
-  }
+    .container {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+    }
 
-  function enableButton() {
-    btn.disabled = false;
-    btn.textContent = "Generate Key";
-  }
+    .header {
+      position: absolute;
+      top: 40px;
+      animation: fadeInDown 1.2s ease-out both;
+    }
 
-  function formatTime(seconds) {
-    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
-    return `${h}:${m}:${s}`;
-  }
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(0,0,0,0.3);
+      margin-bottom: 0.3rem;
+    }
 
-  function startCountdown(expiryTimestamp, key) {
-    function update() {
-      const now = Date.now();
-      let diffSeconds = Math.floor((expiryTimestamp - now) / 1000);
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      text-shadow: 0 0 6px rgba(0,0,0,0.3);
+      animation: fadeInDown 1.2s 0.3s both;
+    }
 
-      if (diffSeconds <= 0) {
-        resultEl.textContent = "Key expired. You can now generate a new one.";
-        enableButton();
-        return;
+    .hidden {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    #generate-btn,
+    #copy-btn {
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
+    }
+
+    #generate-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 20px);
+      animation: fadeInSlideUp 1.5s 1.5s forwards;
+    }
+
+    #generate-btn:disabled {
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: rgba(255,255,255,0.05);
+    }
+
+    #generate-btn:hover:not(:disabled),
+    #copy-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 12px #fff, 0 0 20px #fff;
+    }
+
+    #result {
+      position: absolute;
+      top: 63%;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 360px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      word-break: break-word;
+      min-height: 60px;
+      user-select: text;
+      opacity: 0;
+      animation: fadeInSlideUp 1.5s 1.5s forwards;
+      white-space: pre-line;
+    }
+
+    #copy-btn {
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      display: none;
+      animation: fadeInSlideUp 1.5s 2s forwards;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
+      color: #ddd;
+      animation: fadeInUp 0.8s 1.8s both;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
-
-      resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
-      requestAnimationFrame(update);
-    }
-
-    update();
-  }
-
-  window.onload = () => {
-    const data = loadSavedData();
-
-    btn.classList.remove('hidden');
-    resultEl.classList.remove('hidden');
-
-    if (data && data.key && data.expiryTimestamp) {
-      const now = Date.now();
-      if (now < data.expiryTimestamp) {
-        disableButton();
-        startCountdown(data.expiryTimestamp, data.key);
-        showCopyBtn();
-      } else {
-        enableButton();
-        resultEl.textContent = "Key expired. You can now generate a new one.";
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
-  };
 
-  async function generateKey() {
-    if (btn.disabled) return;
+    @media (max-width: 400px) {
+      h1 { font-size: 2.5rem; }
+      h2 { font-size: 1.5rem; }
+      #generate-btn, #copy-btn { padding: 12px; font-size: 1rem; }
+      #result { max-width: 90%; font-size: 1rem; padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="assets/bg.mp4" type="video/mp4" />
+  </video>
 
-    btn.textContent = 'Generating...';
+  <div class="container">
+    <div class="header">
+      <h1>Pet Duper</h1>
+      <h2>Echo Scripts Key Generator</h2>
+    </div>
 
-    try {
-      const deviceId = getDeviceId();
-      const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
-      const data = await res.json();
+    <button id="generate-btn" class="hidden">Generate Key</button>
+    <div id="result" class="hidden"></div>
+    <button id="copy-btn">Copy Key</button>
+    <div class="footer">made by: Echo Scripts</div>
+  </div>
 
-      if (data.success && data.key) {
-        disableButton();
-        const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
-        saveKeyData(data.key, expiryTimestamp);
-        startCountdown(expiryTimestamp, data.key);
-        showCopyBtn();
-      } else {
-        resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
-        btn.textContent = 'Generate Key';
+  <script>
+    const btn = document.getElementById('generate-btn');
+    const resultEl = document.getElementById('result');
+    const copyBtn = document.getElementById('copy-btn');
+    const STORAGE_KEY = 'petDuperKeyData';
+    const TIMER_DURATION_SEC = 5 * 60 * 60 * 1000; // in ms
+
+    btn.addEventListener('click', generateKey);
+    copyBtn.addEventListener('click', copyKeyToClipboard);
+
+    function getDeviceId() {
+      let id = localStorage.getItem('deviceId');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('deviceId', id);
       }
-    } catch {
-      resultEl.textContent = 'Network error or backend unreachable';
+      return id;
+    }
+
+    function loadSavedData() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch {
+        return null;
+      }
+    }
+
+    function saveKeyData(key, expiryTimestamp) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ key, expiryTimestamp }));
+    }
+
+    function disableButton() {
+      btn.disabled = true;
+      btn.textContent = 'Key Generated';
+    }
+
+    function enableButton() {
+      btn.disabled = false;
       btn.textContent = 'Generate Key';
+      copyBtn.style.display = 'none';
     }
-  }
 
-  function copyKeyToClipboard() {
-    const match = resultEl.textContent.match(/[A-Z0-9]{30}/);
-    if (match) {
-      navigator.clipboard.writeText(match[0]).then(() => {
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy Key';
-        }, 1500);
-      });
+    function formatTime(sec) {
+      const h = String(Math.floor(sec/3600)).padStart(2,'0');
+      const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+      const s = String(sec%60).padStart(2,'0');
+      return `${h}:${m}:${s}`;
     }
-  }
 
-  function showCopyBtn() {
-    copyBtn.style.display = 'block';
-  }
-</script>
+    function startCountdown(expiry, key) {
+      function tick() {
+        const now = Date.now();
+        let diff = Math.floor((expiry - now)/1000);
+        if (diff <= 0) {
+          resultEl.textContent = 'Key expired. You can now generate a new one.';
+          enableButton();
+          return;
+        }
+        resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diff)}`;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    function showCopyBtn() {
+      copyBtn.style.display = 'block';
+      copyBtn.style.opacity = '1';
+    }
+
+    window.onload = () => {
+      const data = loadSavedData();
+      btn.classList.remove('hidden');
+      resultEl.classList.remove('hidden');
+
+      if (data && data.key && data.expiryTimestamp) {
+        const now = Date.now();
+        if (now < data.expiryTimestamp) {
+          disableButton();
+          startCountdown(data.expiryTimestamp, data.key);
+          showCopyBtn();
+        } else {
+          resultEl.textContent = 'Key expired. You can now generate a new one.';
+          enableButton();
+        }
+      }
+    };
+
+    async function generateKey() {
+      if (btn.disabled) return;
+      btn.textContent = 'Generating...';
+
+      try {
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${getDeviceId()}`);
+        const data = await res.json();
+
+        if (data.success && data.key) {
+          const expiry = Date.now() + TIMER_DURATION_SEC;
+          saveKeyData(data.key, expiry);
+          disableButton();
+          startCountdown(expiry, data.key);
+          showCopyBtn();
+        } else {
+          resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
+          enableButton();
+        }
+      } catch {
+        resultEl.textContent = 'Network error or backend unreachable';
+        enableButton();
+      }
+    }
+
+    function copyKeyToClipboard() {
+      const match = resultEl.textContent.match(/[A-Z0-9]{30}/);
+      if (match) {
+        navigator.clipboard.writeText(match[0]).then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => copyBtn.textContent = 'Copy Key', 1500);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
