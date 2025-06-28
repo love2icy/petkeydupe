@@ -6,131 +6,123 @@
   <title>Echo Scripts Key Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin:0; padding:0 }
+    html, body { height:100%; }
     body {
-      font-family: 'Poppins', sans-serif;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
       background: #000;
       color: #fff;
-      height: 100vh;
+      font-family: 'Poppins', sans-serif;
       overflow: hidden;
-      position: relative;
     }
+
+    /* background video */
     #bg-video {
-      position: fixed; top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      object-fit: cover; z-index: -2;
+      position: fixed; top:0; left:0;
+      width:100vw; height:100vh;
+      object-fit:cover; z-index:-2;
     }
+
+    /* header */
     .header {
       text-align: center;
-      margin-top: 3vh;
+      padding: 2vh 1rem 0;
       animation: fadeInDown 1.2s ease-out both;
     }
-    h1 { font-size: 3rem; font-weight: 700; text-shadow:0 0 8px rgba(0,0,0,0.3); }
+    h1 { font-size:3rem; font-weight:700; text-shadow:0 0 8px rgba(0,0,0,0.3); }
     h2 {
-      font-size: 1.8rem; font-weight: 500;
+      margin-top:0.5rem;
+      font-size:1.8rem; font-weight:500;
       text-shadow:0 0 6px rgba(0,0,0,0.3);
       animation: fadeInDown 1.2s 0.3s both;
     }
 
-    .interactive {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      width: 100%;
-      max-width: 500px;
-      padding: 0 1rem;
+    /* main grid area */
+    .main {
+      display: grid;
+      grid-template-rows: 1fr auto auto auto 1fr;
+      align-items: start;
+      justify-items: center;
+      row-gap: 1rem;
+      position: relative;
     }
 
     button {
-      background: transparent;
-      border: 2px solid #fff;
-      color: #fff;
-      padding: 15px 40px;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      background:transparent;
+      border:2px solid #fff;
+      color:#fff;
+      padding:15px 40px;
+      font-size:1.2rem; font-weight:600;
+      border-radius:50px;
+      cursor:pointer;
       backdrop-filter: blur(5px);
-      box-shadow:
-        0 0 8px rgba(255,255,255,0.2),
-        0 0 15px rgba(255,255,255,0.1);
-      opacity: 0;
-      transform: translateY(20px);
+      box-shadow:0 0 8px rgba(255,255,255,0.2),0 0 15px rgba(255,255,255,0.1);
+      opacity:0; transform: translateY(20px);
+      transition: all .3s ease;
     }
     button:disabled {
-      border-color: #666;
-      color: #666;
-      cursor: not-allowed;
-      background: rgba(255,255,255,0.05);
-      box-shadow: none;
+      border-color:#666; color:#666;
+      background:rgba(255,255,255,0.05);
+      cursor:not-allowed; box-shadow:none;
     }
     button:hover:not(:disabled) {
-      background: rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.1);
       transform: translateY(-2px);
-      box-shadow:
-        0 0 12px #fff,
-        0 0 20px #fff;
+      box-shadow:0 0 12px #fff,0 0 20px #fff;
     }
 
     #generate-btn {
+      grid-row: 2;
       animation: fadeInSlideUp 1.2s 1s forwards;
     }
+    #result {
+      grid-row: 3;
+      width: 90%;
+      max-width:460px;
+      background: rgba(255,255,255,0.15);
+      border-radius:15px;
+      padding:20px;
+      font-size:1.1rem; font-weight:500;
+      box-shadow:0 0 10px rgba(0,0,0,0.2);
+      white-space: pre-wrap;
+      word-break: keep-all;
+      min-height: 3.5rem; /* two lines */
+      opacity:0; transform:translateY(20px);
+      animation: fadeInSlideUp 1.2s 1.6s forwards;
+    }
     #copy-btn {
+      grid-row: 4;
       display: none;
       animation: fadeInSlideUp 1.2s 2.2s forwards;
     }
 
-    #result {
-      width: 100%;
-      max-width: 460px;
-      background: rgba(255,255,255,0.15);
-      padding: 20px;
-      border-radius: 15px;
-      font-weight: 500;
-      font-size: 1.1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      user-select: text;
-      white-space: pre-wrap;
-      word-break: keep-all;
-      min-height: 4rem;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInSlideUp 1.2s 1.6s forwards;
-    }
-
+    /* footer */
     .footer {
-      position: absolute;
-      bottom: 5vh;
-      width: 100%;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #ddd;
-      animation: fadeInUp 0.8s 2.5s both;
+      text-align:center;
+      padding-bottom:5vh; /* lifted above taskbar */
+      font-size:.9rem; color:#ddd;
+      animation: fadeInUp .8s 2.5s both;
     }
 
     @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform: translateY(-20px) }
+      to   { opacity:1; transform: translateY(0) }
     }
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform: translateY(20px) }
+      to   { opacity:1; transform: translateY(0) }
     }
     @keyframes fadeInSlideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform: translateY(20px) }
+      to   { opacity:1; transform: translateY(0) }
     }
 
     @media (max-width:400px) {
-      h1 { font-size:2.5rem; }
-      h2 { font-size:1.5rem; }
-      button { padding:12px; font-size:1rem; }
-      #result { font-size:1rem; padding:15px; }
+      h1{ font-size:2.5rem }
+      h2{ font-size:1.5rem }
+      button{ padding:12px; font-size:1rem }
+      #result{ padding:15px; font-size:1rem }
     }
   </style>
 </head>
@@ -145,10 +137,12 @@
     <h2>Echo Scripts Key Generator</h2>
   </div>
 
-  <div class="interactive">
+  <div class="main">
+    <!-- row 1 is blank 1fr -->
     <button id="generate-btn">Generate Key</button>
     <div id="result"></div>
     <button id="copy-btn">Copy Key</button>
+    <!-- row 5 is blank 1fr -->
   </div>
 
   <div class="footer">made by: Echo Scripts</div>
@@ -158,7 +152,7 @@
     const result  = document.getElementById('result');
     const copyBtn = document.getElementById('copy-btn');
     const STORAGE = 'petDuperKeyData';
-    const EXP_MS  = 5 * 60 * 60 * 1000;
+    const EXP_MS  = 5*60*60*1000;
 
     btn.addEventListener('click', generateKey);
     copyBtn.addEventListener('click', copyKey);
@@ -178,14 +172,13 @@
     }
 
     function saveData(key, expiry) {
-      localStorage.setItem(STORAGE, JSON.stringify({ key, expiry }));
+      localStorage.setItem(STORAGE, JSON.stringify({key,expiry}));
     }
 
     function disableGen() {
       btn.disabled = true;
       btn.textContent = 'Key Generated';
     }
-
     function enableGen() {
       btn.disabled = false;
       btn.textContent = 'Generate Key';
@@ -193,30 +186,27 @@
       result.innerHTML = '';
     }
 
-    function formatTime(sec) {
+    function fmt(sec) {
       const h = String(Math.floor(sec/3600)).padStart(2,'0'),
             m = String(Math.floor((sec%3600)/60)).padStart(2,'0'),
             s = String(sec%60).padStart(2,'0');
       return `${h}:${m}:${s}`;
     }
 
-    function renderResult(key, timeStr) {
-      result.innerHTML = `
-        <div>Your Key: ${key}</div>
-        <div>Expires in: ${timeStr}</div>
-      `;
+    function renderResult(key, time) {
+      result.innerHTML = `Your Key: ${key}\nExpires in: ${time}`;
     }
 
     function startCountdown(expiry, key) {
       function tick() {
-        const now = Date.now();
-        let diff = Math.floor((expiry - now)/1000);
-        if (diff <= 0) {
+        const now  = Date.now();
+        const diff = Math.floor((expiry - now)/1000);
+        if (diff<=0) {
           renderResult(key, '00:00:00');
           enableGen();
           return;
         }
-        renderResult(key, formatTime(diff));
+        renderResult(key, fmt(diff));
         requestAnimationFrame(tick);
       }
       tick();
@@ -226,7 +216,7 @@
       copyBtn.style.display = 'block';
     }
 
-    window.addEventListener('load', () => {
+    window.addEventListener('load', ()=>{
       const data = loadData();
       if (data && data.key && data.expiry) {
         if (Date.now() < data.expiry) {
@@ -252,21 +242,21 @@
           startCountdown(expiry, js.key);
           showCopy();
         } else {
-          result.innerHTML = `<div>Error: ${js.message || 'Unable to generate'}</div>`;
+          result.innerHTML = `Error: ${js.message||'Unable to generate'}`;
           enableGen();
         }
       } catch {
-        result.innerHTML = '<div>Network error or backend unreachable</div>';
+        result.innerHTML = 'Network error or backend unreachable';
         enableGen();
       }
     }
 
     function copyKey() {
-      const match = result.textContent.match(/[A-Za-z0-9]{30}/);
-      if (match) {
-        navigator.clipboard.writeText(match[0]).then(() => {
+      const m = result.textContent.match(/[A-Za-z0-9]{30}/);
+      if (m) {
+        navigator.clipboard.writeText(m[0]).then(()=>{
           copyBtn.textContent = 'Copied!';
-          setTimeout(() => (copyBtn.textContent = 'Copy Key'), 1500);
+          setTimeout(()=>copyBtn.textContent='Copy Key',1500);
         });
       }
     }
