@@ -6,43 +6,64 @@
   <title>Echo Scripts Key Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin:0; padding:0 }
-    html, body { height:100% }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
-      background:#000; color:#fff;
-      font-family:'Poppins',sans-serif;
-      position: relative;
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      height: 100vh;
       overflow: hidden;
     }
+
     #bg-video {
-      position: fixed; top:0; left:0;
-      width:100vw; height:100vh;
-      object-fit:cover; z-index:-2;
-    }
-    .header {
-      text-align:center; padding-top:2vh;
-      animation:fadeInDown 1.2s both;
-    }
-    h1 { font-size:3rem; font-weight:700; text-shadow:0 0 8px rgba(0,0,0,0.3) }
-    h2 {
-      margin-top:.5rem;
-      font-size:1.8rem; font-weight:500;
-      text-shadow:0 0 6px rgba(0,0,0,0.3);
-      animation:fadeInDown 1.2s .3s both;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
     }
 
-    .center-container {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+    .container {
+      position: relative;
+      height: 100vh;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center; /* horizontally center children */
-      gap: 20px;
-      animation:fadeInSlideUp 1.2s 1s both;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
     }
 
-    #generate-btn, #copy-btn {
+    .header {
+      position: absolute;
+      top: 40px;
+      animation: fadeInDown 1.5s ease-out both;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(0,0,0,0.3);
+      margin-bottom: 0.3rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 500;
+      text-shadow: 0 0 6px rgba(0,0,0,0.3);
+      animation: fadeInDown 1.5s 0.5s both;
+    }
+
+    #generate-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       background: transparent;
       border: 2px solid #fff;
       color: #fff;
@@ -51,101 +72,146 @@
       font-weight: 600;
       border-radius: 50px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.8s 0.4s both;
       backdrop-filter: blur(5px);
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
-      box-sizing: border-box;
-      width: auto; /* keep natural width */
+      user-select: none;
     }
 
     #generate-btn:disabled {
-      border-color:#666; color:#666;
-      background:rgba(255,255,255,0.05);
-      cursor:not-allowed; box-shadow:none;
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: rgba(255,255,255,0.05);
     }
 
-    #generate-btn:hover:not(:disabled),
-    #copy-btn:hover {
-      background:rgba(255,255,255,0.1);
-      transform: translateY(-2px);
-      box-shadow:0 0 12px #fff,0 0 20px #fff;
-    }
-
-    #result {
-      display: none;
-      background: rgba(255,255,255,0.15);
-      border-radius: 15px;
-      padding: 20px 25px; /* wider padding for extra space */
-      font-size: 1.1rem;
-      font-weight: 500;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      white-space: nowrap;
-      min-height: 4rem;
-      text-align: center;  /* center text */
-      margin: 0 auto;      /* center box horizontally */
-      max-width: none;     /* remove max width */
-      width: auto;         /* auto width to fit content */
-      box-sizing: border-box;
+    #generate-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-52%);
+      box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
     #copy-btn {
-      display: none;
+      position: absolute;
+      top: 77%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.8s 0.7s both;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
+      user-select: none;
+      margin-top: 15px;
+    }
+
+    #copy-btn:disabled {
+      border-color: #666;
+      color: #666;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: rgba(255,255,255,0.05);
+    }
+
+    #copy-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-52%);
+      box-shadow: 0 0 12px #fff, 0 0 20px #fff;
+    }
+
+    #result {
+      position: absolute;
+      top: 55%;
+      background: rgba(255, 255, 255, 0.048);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 360px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      word-break: break-word;
+      min-height: 60px;
+      user-select: text;
+      opacity: 0;
+      animation: fadeIn 0.5s 1s forwards;
+      white-space: pre-line;
+      margin-bottom: 10px;
+      backdrop-filter: blur(5px);
     }
 
     .footer {
-      position:absolute; bottom:5vh; width:100%;
-      text-align:center; font-size:.9rem; color:#ddd;
-      animation:fadeInUp .8s 2.5s both;
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
+      color: #ddd;
+      animation: fadeInUp 0.8s 1.2s both;
     }
 
     @keyframes fadeInDown {
-      from { opacity:0; transform:translateY(-20px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-    @keyframes fadeInUp {
-      from { opacity:0; transform:translateY(20px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-    @keyframes fadeInSlideUp {
-      from { opacity:0; transform:translateY(20px) }
-      to   { opacity:1; transform:translateY(0) }
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width:400px) {
-      h1{font-size:2.5rem} h2{font-size:1.5rem}
-      #generate-btn,#copy-btn{padding:12px;font-size:1rem}
-      #result{padding:15px 20px;font-size:1rem;min-height:3.5rem}
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 400px) {
+      h1 { font-size: 2.5rem; }
+      h2 { font-size: 1.5rem; }
+      #generate-btn, #copy-btn { padding: 12px; font-size: 1rem; }
+      #result { max-width: 90%; font-size: 1rem; padding: 15px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- Background Video -->
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="assets/bg.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
   </video>
 
-  <div class="header">
-    <h1>Pet Duper</h1>
-    <h2>Echo Scripts Key Generator</h2>
-  </div>
+  <div class="container">
+    <div class="header">
+      <h1>Pet Duper</h1>
+      <h2>Echo Scripts Key Generator</h2>
+    </div>
 
-  <div class="center-container">
     <button id="generate-btn">Generate Key</button>
-    <div id="result"></div>
-    <button id="copy-btn">Copy Key</button>
-  </div>
 
-  <div class="footer">made by: Echo Scripts</div>
+    <div id="result"></div>
+
+    <button id="copy-btn" disabled>Copy Key</button>
+
+    <div class="footer">made by: Echo Scripts</div>
+  </div>
 
   <script>
-    const btn     = document.getElementById('generate-btn');
-    const result  = document.getElementById('result');
+    const btn = document.getElementById('generate-btn');
     const copyBtn = document.getElementById('copy-btn');
-    const STORAGE = 'petDuperKeyData';
-    const EXP_MS  = 5 * 60 * 60 * 1000;
+    const resultEl = document.getElementById('result');
+    const STORAGE_KEY = 'petDuperKeyData';
+    const TIMER_DURATION_SEC = 5 * 60 * 60; // 5 hours in seconds
 
-    btn.addEventListener('click', generateKey);
-    copyBtn.addEventListener('click', copyKey);
+    btn.addEventListener('click', () => generateKey());
+    copyBtn.addEventListener('click', () => copyKey());
 
-    function getId() {
+    // Generate or get device ID
+    function getDeviceId() {
       let id = localStorage.getItem('deviceId');
       if (!id) {
         id = crypto.randomUUID();
@@ -154,95 +220,128 @@
       return id;
     }
 
-    function loadData() {
-      try { return JSON.parse(localStorage.getItem(STORAGE)); }
-      catch { return null; }
+    // Load saved key & timer info from localStorage
+    function loadSavedData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return null;
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
     }
 
-    function saveData(key, expiry) {
-      localStorage.setItem(STORAGE, JSON.stringify({ key, expiry }));
+    // Save key & expiry timestamp to localStorage
+    function saveKeyData(key, expiryTimestamp) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        key,
+        expiryTimestamp
+      }));
     }
 
-    function disableGen() {
+    // Disable the generate button
+    function disableButton() {
       btn.disabled = true;
-      btn.textContent = 'Key Generated';
-    }
-    function enableGen() {
-      btn.disabled = false;
-      btn.textContent = 'Generate Key';
-      result.style.display = 'none';
-      copyBtn.style.display = 'none';
+      btn.textContent = "Key Generated";
     }
 
-    function fmt(sec) {
-      const h = String(Math.floor(sec/3600)).padStart(2,'0'),
-            m = String(Math.floor((sec%3600)/60)).padStart(2,'0'),
-            s = String(sec%60).padStart(2,'0');
+    // Format seconds to HH:MM:SS
+    function formatTime(seconds) {
+      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
       return `${h}:${m}:${s}`;
     }
 
-    function renderResult(key, time) {
-      result.innerHTML = `<div>Your Key: ${key}</div><div>Expires in: ${time}</div>`;
-      result.style.display = 'block';
-    }
-
-    function startCountdown(expiry, key) {
-      function tick() {
+    // Countdown timer function updating the #result text
+    function startCountdown(expiryTimestamp, key) {
+      function update() {
         const now = Date.now();
-        const diff = Math.floor((expiry - now)/1000);
-        if (diff <= 0) {
-          renderResult(key, '00:00:00');
-          enableGen();
-          return;
-        }
-        renderResult(key, fmt(diff));
-        requestAnimationFrame(tick);
-      }
-      tick();
-    }
+        let diffSeconds = Math.floor((expiryTimestamp - now) / 1000);
 
-    function showCopy() {
-      copyBtn.style.display = 'block';
-    }
+        if (diffSeconds < 0) diffSeconds = 0;
 
-    window.addEventListener('load', () => {
-      const data = loadData();
-      if (data && data.key && data.expiry && Date.now() < data.expiry) {
-        disableGen();
-        startCountdown(data.expiry, data.key);
-        showCopy();
-      }
-    });
+        resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
+        resultEl.style.opacity = 1;
 
-    async function generateKey() {
-      if (btn.disabled) return;
-      btn.textContent = 'Generating...';
-      try {
-        const res = await fetch(
-          `https://petkeydupe.onrender.com/generate-key?deviceId=${getId()}`
-        );
-        const js = await res.json();
-        if (js.success && js.key) {
-          const expiry = Date.now() + EXP_MS;
-          saveData(js.key, expiry);
-          disableGen();
-          startCountdown(expiry, js.key);
-          showCopy();
+        // Enable copy button if key visible
+        copyBtn.disabled = false;
+
+        if (diffSeconds > 0) {
+          requestAnimationFrame(update);
         } else {
-          renderResult(`Error: ${js.message||'Generation failed'}`, '');
+          // Timer finished: optionally enable button again or keep disabled
+          // Here we keep disabled to prevent regeneration
+        }
+      }
+      update();
+    }
+
+    // On page load, check if key + timer exists and restore UI state
+    window.onload = () => {
+      const data = loadSavedData();
+      if (data && data.key && data.expiryTimestamp) {
+        disableButton();
+        startCountdown(data.expiryTimestamp, data.key);
+      }
+    };
+
+    // Generate key via backend
+    async function generateKey() {
+      if (btn.disabled) return; // safety check
+
+      btn.textContent = 'Generating...';
+
+      try {
+        const deviceId = getDeviceId();
+        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
+        const data = await res.json();
+
+        if (data.success && data.key) {
+          disableButton();
+
+          // Calculate expiry timestamp 5 hours from now
+          const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
+          saveKeyData(data.key, expiryTimestamp);
+
+          startCountdown(expiryTimestamp, data.key);
+        } else {
+          resultEl.textContent = `Error: ${data.message || 'Failed to generate key'}`;
+          resultEl.style.opacity = 1;
+          btn.textContent = 'Generate Key';
+          copyBtn.disabled = true;
         }
       } catch {
-        renderResult('Network error or backend unreachable','');
+        resultEl.textContent = 'Network error or backend unreachable';
+        resultEl.style.opacity = 1;
+        btn.textContent = 'Generate Key';
+        copyBtn.disabled = true;
       }
     }
 
+    // Copy the key to clipboard (extract key from resultEl text)
     function copyKey() {
-      const m = result.textContent.match(/[A-Za-z0-9]{30}/);
-      if (m) {
-        navigator.clipboard.writeText(m[0]).then(() => {
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => (copyBtn.textContent = 'Copy Key'), 1500);
-        });
+      // Extract the key from result text:
+      // The format is:
+      // Your Key:
+      // <key>
+      // 
+      // Expires in: HH:MM:SS
+
+      const text = resultEl.textContent || '';
+      const lines = text.split('\n');
+      if (lines.length >= 2) {
+        const key = lines[1].trim();
+        if (key) {
+          navigator.clipboard.writeText(key).then(() => {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+              copyBtn.textContent = 'Copy Key';
+            }, 2000);
+          }).catch(() => {
+            alert('Failed to copy the key');
+          });
+        }
       }
     }
   </script>
