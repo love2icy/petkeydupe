@@ -261,18 +261,25 @@
       return `${h}:${m}:${s}`;
     }
 
-    // Fade in helper function to restart animation reliably
-    function fadeIn(el) {
-      el.style.opacity = '0';
-      el.style.pointerEvents = 'none';
-      el.style.animation = 'none';
+   function fadeIn(el) {
+  el.style.opacity = '0';
+  el.style.pointerEvents = 'none';
+  el.style.animation = 'none';
 
-      // trigger reflow to restart animation
-      void el.offsetWidth;
+  // trigger reflow to restart animation
+  void el.offsetWidth;
 
-      el.style.animation = 'fadeIn 0.5s ease forwards';
-      el.style.pointerEvents = 'auto';
-    }
+  el.style.animation = 'fadeIn 0.5s ease forwards';
+
+  // When animation finishes, set final visible styles
+  el.addEventListener('animationend', function handler() {
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+    el.style.animation = ''; // clear animation
+    el.removeEventListener('animationend', handler);
+  });
+}
+
 
     // Countdown timer function updating the #result text
     function startCountdown(expiryTimestamp, key) {
