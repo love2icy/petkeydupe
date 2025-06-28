@@ -116,7 +116,7 @@
 
     #copy-btn {
       position: fixed;
-      top: 70.5%;
+      top: 70%;
       left: 50%;
       transform: translateX(-50%);
       background: transparent;
@@ -132,9 +132,9 @@
       box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
       user-select: none;
       margin-top: 15px;
+      z-index: 1;
       opacity: 0;
       pointer-events: none;
-      z-index: 1;
     }
 
     #copy-btn:disabled {
@@ -162,27 +162,19 @@
       z-index: 1;
     }
 
-    /* FadeIn animation reused */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* FadeInDown & FadeInUp for header and footer */
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Visible with fadeIn animation */
-    .visible-fade-in {
-      opacity: 1 !important;
-      animation: fadeIn 0.5s ease forwards !important;
-      pointer-events: auto !important;
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
     }
 
     @media (max-width: 400px) {
@@ -269,6 +261,19 @@
       return `${h}:${m}:${s}`;
     }
 
+    // Fade in helper function to restart animation reliably
+    function fadeIn(el) {
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+      el.style.animation = 'none';
+
+      // trigger reflow to restart animation
+      void el.offsetWidth;
+
+      el.style.animation = 'fadeIn 0.5s ease forwards';
+      el.style.pointerEvents = 'auto';
+    }
+
     // Countdown timer function updating the #result text
     function startCountdown(expiryTimestamp, key) {
       function update() {
@@ -279,6 +284,11 @@
 
         resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
 
+        // Ensure result and copy button are visible with animation
+        fadeIn(resultEl);
+        copyBtn.disabled = false;
+        fadeIn(copyBtn);
+
         if (diffSeconds > 0) {
           requestAnimationFrame(update);
         }
@@ -286,22 +296,11 @@
       update();
     }
 
-    // Utility: trigger fade-in animation by toggling class
-    function triggerFadeIn(el) {
-      el.classList.remove('visible-fade-in');
-      void el.offsetWidth; // trigger reflow to restart animation
-      el.classList.add('visible-fade-in');
-    }
-
     // On page load, check if key + timer exists and restore UI state
     window.onload = () => {
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
-        resultEl.textContent = `Your Key:\n${data.key}\n\nExpires in: Loading...`;
-        triggerFadeIn(resultEl);
-        copyBtn.disabled = false;
-        triggerFadeIn(copyBtn);
         startCountdown(data.expiryTimestamp, data.key);
       }
     };
@@ -325,10 +324,10 @@
           saveKeyData(data.key, expiryTimestamp);
 
           resultEl.textContent = `Your Key:\n${data.key}\n\nExpires in: Loading...`;
-          triggerFadeIn(resultEl);
+          fadeIn(resultEl);
 
           copyBtn.disabled = false;
-          triggerFadeIn(copyBtn);
+          fadeIn(copyBtn);
 
           startCountdown(expiryTimestamp, data.key);
         } else {
