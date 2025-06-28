@@ -8,152 +8,96 @@
   <style>
     /* Reset & base */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #000;
-      color: #fff;
-      min-height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      place-items: center;
-      padding: 20px;
-      text-align: center;
+    html, body {
+      margin: 0; padding: 0;
       overflow-x: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: #000; color: #fff;
+      height: 100vh; text-align: center; position: relative;
     }
 
-    /* Background Video */
+    /* Video background */
     #bg-video {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: -2;
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover; z-index: -2;
       pointer-events: none;
-      background-color: transparent;
+    }
+
+    /* Fade-in/up animation */
+    @keyframes fadeInUpSmooth {
+      from { opacity: 0; transform: translateY(25px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* Header */
     .header {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: fadeInDownSmooth 2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+      position: fixed; top: 20px;
+      left: 50%; transform: translateX(-50%);
       z-index: 10;
+      animation: fadeInUpSmooth 2s ease-out both;
     }
-    h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      text-shadow: 0 0 12px rgba(255,255,255,0.7);
-      margin-bottom: 0.1rem;
-      animation: glowText 3s ease-in-out infinite alternate;
+    .header h1 {
+      font-size: 3rem; font-weight: 700;
     }
-    h2 {
-      font-size: 1.8rem;
-      font-weight: 500;
-      text-shadow: 0 0 10px rgba(255,255,255,0.5);
-      animation: fadeInDownSmooth 2.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    .header h2 {
+      font-size: 1.8rem; font-weight: 500;
+      margin-top: 0.3rem;
+      animation: fadeInUpSmooth 2.5s ease-out both;
     }
 
-    /* Glowing Transparent Button */
+    /* Generate button */
     #generate-btn {
-      position: fixed;
-      top: 50%;
-      left: 50%;
+      position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: transparent;
-      border: 2px solid #fff;
-      color: #fff;
-      padding: 15px 40px;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
-      animation: fadeInUpSmooth 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+      background: transparent; border: 2px solid #fff;
+      color: #fff; padding: 15px 40px;
+      font-size: 1.2rem; font-weight: 600;
+      border-radius: 50px; cursor: pointer;
       backdrop-filter: blur(5px);
-      box-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.15);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+      transition: all 0.35s ease;
+      animation: fadeInUpSmooth 3s ease-out both;
       z-index: 10;
     }
-    #generate-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+    #generate-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.15);
       transform: translate(-50%, -52%);
-      box-shadow: 0 0 20px #fff, 0 0 35px #fff;
+      box-shadow: 0 0 25px #fff;
     }
-    #generate-btn:active {
-      transform: translate(-50%, -50%);
+    #generate-btn:disabled {
+      opacity: 0.5; cursor: not-allowed; box-shadow: none;
     }
 
     /* Result box */
     #result {
-      position: fixed;
-      top: calc(50% + 80px);
-      left: 50%;
+      position: fixed; top: calc(50% + 80px); left: 50%;
       transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.15);
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 360px;
-      font-weight: 500;
-      font-size: 1.1rem;
-      box-shadow: 0 0 15px rgba(255,255,255,0.3);
-      word-break: break-word;
-      min-height: 60px;
-      user-select: text;
-      white-space: pre-line;
-      opacity: 0;
-      animation: fadeInUpSmooth 2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-      animation-fill-mode: forwards;
+      background: rgba(255,255,255,0.15); padding: 20px;
+      border-radius: 15px; max-width: 360px;
+      font-size: 1.1rem; font-weight: 500;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+      word-break: break-word; min-height: 60px;
+      white-space: pre-line; opacity: 0;
+      animation: fadeInUpSmooth 3.5s ease-out both;
       z-index: 10;
     }
 
     /* Footer */
     .footer {
-      font-size: 0.9rem;
-      color: #ddd;
-      margin-top: 3rem;
-      animation: fadeInUpSmooth 3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+      position: fixed; bottom: 20px;
+      left: 50%; transform: translateX(-50%);
+      font-size: 0.9rem; color: #ddd;
+      z-index: 10;
+      animation: fadeInUpSmooth 4s ease-out both;
     }
 
-    /* Animations */
-    @keyframes fadeInDownSmooth {
-      from { opacity: 0; transform: translateY(-25px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInUpSmooth {
-      from { opacity: 0; transform: translateY(25px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes glowText {
-      0% {
-        text-shadow:
-          0 0 5px #fff,
-          0 0 10px #fff,
-          0 0 20px #0ff,
-          0 0 30px #0ff,
-          0 0 40px #0ff,
-          0 0 55px #0ff,
-          0 0 75px #0ff;
-      }
-      100% {
-        text-shadow:
-          0 0 10px #fff,
-          0 0 20px #0ff,
-          0 0 30px #0ff,
-          0 0 40px #0ff,
-          0 0 50px #0ff,
-          0 0 70px #0ff,
-          0 0 90px #0ff;
-      }
-    }
-
-    /* Responsive */
+    /* Responsive tweaks */
     @media (max-width: 400px) {
-      h1 { font-size: 2.5rem; }
-      h2 { font-size: 1.5rem; }
-      #generate-btn { width: 100%; padding: 12px; font-size: 1rem; }
-      #result { max-width: 100%; font-size: 1rem; padding: 15px; }
+      .header h1 { font-size: 2.5rem; }
+      .header h2 { font-size: 1.5rem; }
+      #generate-btn { width: 80%; padding: 12px; font-size: 1rem; }
+      #result { max-width: 90%; padding: 15px; font-size: 1rem; }
     }
   </style>
 </head>
@@ -164,93 +108,45 @@
     <source src="assets/bg.mp4" type="video/mp4" />
   </video>
 
+  <!-- Header -->
   <div class="header">
     <h1>Pet Duper</h1>
     <h2>Echo Scripts Key Generator</h2>
   </div>
 
+  <!-- Generate Button & Result -->
   <button id="generate-btn">Generate Key</button>
   <div id="result"></div>
 
+  <!-- Footer -->
   <div class="footer">made by: Echo Scripts</div>
 
   <script>
     const btn = document.getElementById('generate-btn');
     const resultEl = document.getElementById('result');
-
-    // Keep track if key generated already
-    let keyGenerated = false;
+    let generated = false;
 
     btn.addEventListener('click', () => {
-      if (keyGenerated) return; // prevent generating multiple keys
-      generateKey();
-    });
-
-    function getDeviceId() {
-      let id = localStorage.getItem('deviceId');
-      if (!id) {
-        id = crypto.randomUUID();
-        localStorage.setItem('deviceId', id);
-      }
-      return id;
-    }
-
-    // Timer variables
-    let countdownInterval = null;
-    let countdownSeconds = 5 * 3600; // 5 hours in seconds
-
-    async function generateKey() {
-      const deviceId = getDeviceId();
+      if (generated) return;
+      generated = true;
+      btn.disabled = true;
       resultEl.style.opacity = 0;
       resultEl.textContent = 'Generating...';
 
-      try {
-        const res = await fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${deviceId}`);
-        const data = await res.json();
-
-        if (data.success) {
-          keyGenerated = true;
-          // Show key + start countdown
-          startCountdown(countdownSeconds);
-          resultEl.textContent = `${data.message}\nKey: ${data.key}\nTime Left: 05:00:00`;
-        } else {
-          resultEl.textContent = `Error: ${data.message}`;
-        }
-      } catch {
-        resultEl.textContent = 'Network error or backend unreachable';
-      }
-
-      resultEl.style.animation = 'none';
-      void resultEl.offsetWidth;
-      resultEl.style.animation = 'fadeInUpSmooth 2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards';
-    }
-
-    function startCountdown(seconds) {
-      if (countdownInterval) clearInterval(countdownInterval);
-      let remaining = seconds;
-
-      function formatTime(s) {
-        const h = Math.floor(s / 3600).toString().padStart(2, '0');
-        const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-        const sec = (s % 60).toString().padStart(2, '0');
-        return `${h}:${m}:${sec}`;
-      }
-
-      countdownInterval = setInterval(() => {
-        if (remaining <= 0) {
-          clearInterval(countdownInterval);
-          resultEl.textContent = 'Key expired';
-          return;
-        }
-        // Update timer while preserving message and key
-        const lines = resultEl.textContent.split('\n');
-        if (lines.length >= 3) {
-          lines[2] = `Time Left: ${formatTime(remaining)}`;
-          resultEl.textContent = lines.join('\n');
-        }
-        remaining--;
-      }, 1000);
-    }
+      fetch(`https://petkeydupe.onrender.com/generate-key?deviceId=${crypto.randomUUID()}`)
+        .then(r => r.json())
+        .then(data => {
+          resultEl.textContent = data.success
+            ? `${data.message}\nKey: ${data.key}`
+            : `Error: ${data.message}`;
+        })
+        .catch(() => resultEl.textContent = 'Network error or backend unreachable')
+        .finally(() => {
+          // Fade in result
+          resultEl.style.transition = 'opacity 1s ease, transform 1s ease';
+          resultEl.style.opacity = 1;
+        });
+    });
   </script>
 </body>
 </html>
