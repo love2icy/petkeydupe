@@ -37,10 +37,9 @@
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
-      align-items: center; /* centers children horizontally */
+      align-items: center; /* horizontally center children */
       gap: 20px;
       animation:fadeInSlideUp 1.2s 1s both;
-      /* no width or max-width here, so container shrinks to content */
     }
 
     #generate-btn, #copy-btn {
@@ -53,9 +52,9 @@
       border-radius: 50px;
       cursor: pointer;
       backdrop-filter: blur(5px);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 15px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 15px rgba(255,255,255,0.1);
       box-sizing: border-box;
-      width: auto; /* keep original button width */
+      width: auto; /* keep natural width */
     }
 
     #generate-btn:disabled {
@@ -73,14 +72,19 @@
 
     #result {
       display: none;
-      width: 90%; max-width:460px;
-      background:rgba(255,255,255,0.15);
-      border-radius:15px; padding:20px;
-      font-size:1.1rem; font-weight:500;
-      box-shadow:0 0 10px rgba(0,0,0,0.2);
+      background: rgba(255,255,255,0.15);
+      border-radius: 15px;
+      padding: 20px 25px; /* wider padding for extra space */
+      font-size: 1.1rem;
+      font-weight: 500;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
       white-space: nowrap;
       min-height: 4rem;
-      text-align: left;
+      text-align: center;  /* center text */
+      margin: 0 auto;      /* center box horizontally */
+      max-width: none;     /* remove max width */
+      width: auto;         /* auto width to fit content */
+      box-sizing: border-box;
     }
 
     #copy-btn {
@@ -109,13 +113,13 @@
     @media (max-width:400px) {
       h1{font-size:2.5rem} h2{font-size:1.5rem}
       #generate-btn,#copy-btn{padding:12px;font-size:1rem}
-      #result{padding:15px;font-size:1rem;min-height:3.5rem}
+      #result{padding:15px 20px;font-size:1rem;min-height:3.5rem}
     }
   </style>
 </head>
 <body>
   <video id="bg-video" autoplay muted loop playsinline>
-    <source src="assets/bg.mp4" type="video/mp4">
+    <source src="assets/bg.mp4" type="video/mp4" />
   </video>
 
   <div class="header">
