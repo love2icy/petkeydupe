@@ -89,6 +89,7 @@
       box-shadow: 0 0 12px #fff, 0 0 20px #fff;
     }
 
+    /* Result and Copy button start hidden - controlled by JS */
     #result {
       position: fixed;
       top: 55%;
@@ -105,13 +106,14 @@
       word-break: break-word;
       min-height: 60px;
       user-select: text;
-      opacity: 0;
-      pointer-events: none;
       white-space: pre-line;
       margin-bottom: 10px;
       backdrop-filter: blur(5px);
       text-align: center;
       z-index: 1;
+      /* opacity: 0; -- REMOVED */
+      /* animation removed */
+      pointer-events: none;
     }
 
     #copy-btn {
@@ -133,7 +135,8 @@
       user-select: none;
       margin-top: 15px;
       z-index: 1;
-      opacity: 0;
+      /* opacity: 0; -- REMOVED */
+      /* animation removed */
       pointer-events: none;
     }
 
@@ -173,8 +176,8 @@
     }
 
     @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     @media (max-width: 400px) {
@@ -261,26 +264,6 @@
       return `${h}:${m}:${s}`;
     }
 
-   function fadeIn(el) {
-  el.style.opacity = '0';
-  el.style.pointerEvents = 'none';
-  el.style.animation = 'none';
-
-  // trigger reflow to restart animation
-  void el.offsetWidth;
-
-  el.style.animation = 'fadeIn 0.5s ease forwards';
-
-  // When animation finishes, set final visible styles
-  el.addEventListener('animationend', function handler() {
-    el.style.opacity = '1';
-    el.style.pointerEvents = 'auto';
-    el.style.animation = ''; // clear animation
-    el.removeEventListener('animationend', handler);
-  });
-}
-
-
     // Countdown timer function updating the #result text
     function startCountdown(expiryTimestamp, key) {
       function update() {
@@ -291,10 +274,9 @@
 
         resultEl.textContent = `Your Key:\n${key}\n\nExpires in: ${formatTime(diffSeconds)}`;
 
-        // Ensure result and copy button are visible with animation
-        fadeIn(resultEl);
+        // Make sure visible (opacity handled in showResultAndCopy)
+        // Enable copy button if key visible
         copyBtn.disabled = false;
-        fadeIn(copyBtn);
 
         if (diffSeconds > 0) {
           requestAnimationFrame(update);
@@ -303,12 +285,55 @@
       update();
     }
 
+    // Show result and copy button, with optional fade-in animation
+    function showResultAndCopy(withAnimation = false) {
+      if (withAnimation) {
+        // Hide first before animation
+        resultEl.style.opacity = '0';
+        resultEl.style.pointerEvents = 'none';
+        copyBtn.style.opacity = '0';
+        copyBtn.style.pointerEvents = 'none';
+
+        // Trigger reflow
+        void resultEl.offsetWidth;
+        void copyBtn.offsetWidth;
+
+        // Apply fadeIn animation
+        resultEl.style.animation = 'fadeIn 0.5s ease forwards';
+        copyBtn.style.animation = 'fadeIn 0.5s ease forwards';
+
+        // After animation ends, set full opacity and pointer events
+        resultEl.addEventListener('animationend', function onResultEnd() {
+          resultEl.style.opacity = '1';
+          resultEl.style.pointerEvents = 'auto';
+          resultEl.style.animation = '';
+          resultEl.removeEventListener('animationend', onResultEnd);
+        });
+
+        copyBtn.addEventListener('animationend', function onCopyEnd() {
+          copyBtn.style.opacity = '1';
+          copyBtn.style.pointerEvents = 'auto';
+          copyBtn.style.animation = '';
+          copyBtn.removeEventListener('animationend', onCopyEnd);
+        });
+      } else {
+        // Show instantly without animation
+        resultEl.style.opacity = '1';
+        resultEl.style.pointerEvents = 'auto';
+        resultEl.style.animation = '';
+        copyBtn.style.opacity = '1';
+        copyBtn.style.pointerEvents = 'auto';
+        copyBtn.style.animation = '';
+      }
+    }
+
     // On page load, check if key + timer exists and restore UI state
     window.onload = () => {
       const data = loadSavedData();
       if (data && data.key && data.expiryTimestamp) {
         disableButton();
         startCountdown(data.expiryTimestamp, data.key);
+        showResultAndCopy(false); // Show immediately without animation
       }
     };
 
@@ -330,11 +355,7 @@
           const expiryTimestamp = Date.now() + TIMER_DURATION_SEC * 1000;
           saveKeyData(data.key, expiryTimestamp);
 
-          resultEl.textContent = `Your Key:\n${data.key}\n\nExpires in: Loading...`;
-          fadeIn(resultEl);
-
-          copyBtn.disabled = false;
-          fadeIn(copyBtn);
+          showResultAndCopy(true); // Show with fade-in animation
 
           startCountdown(expiryTimestamp, data.key);
         } else {
@@ -342,12 +363,14 @@
           resultEl.style.opacity = 1;
           copyBtn.disabled = true;
           btn.textContent = 'Generate Key';
+          showResultAndCopy(false);
         }
       } catch {
         resultEl.textContent = 'Network error or backend unreachable';
         resultEl.style.opacity = 1;
         copyBtn.disabled = true;
         btn.textContent = 'Generate Key';
+        showResultAndCopy(false);
       }
     }
 
