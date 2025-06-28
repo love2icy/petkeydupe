@@ -37,28 +37,25 @@
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      align-items: center; /* centers children horizontally */
       gap: 20px;
-      width: 100%;
-      max-width: 460px;
       animation:fadeInSlideUp 1.2s 1s both;
+      /* no width or max-width here, so container shrinks to content */
     }
 
     #generate-btn, #copy-btn {
-      width: 100%;
-      max-width: 460px;
-      background:transparent;
-      border:2px solid #fff;
-      color:#fff;
-      padding:15px 40px;
-      font-size:1.2rem; font-weight:600;
-      border-radius:50px;
-      cursor:pointer;
-      backdrop-filter:blur(5px);
-      box-shadow:0 0 8px rgba(255,255,255,0.2),0 0 15px rgba(255,255,255,0.1);
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 15px rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
-      text-align: center;
+      width: auto; /* keep original button width */
     }
 
     #generate-btn:disabled {
